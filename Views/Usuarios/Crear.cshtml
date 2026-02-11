@@ -13,15 +13,7 @@
 
         <!-- FORMULARIO -->
         <div class="form-container">
-            <!-- Alerta de Información -->
-            <div class="alert alert-info" role="alert">
-                <h6 class="alert-heading">ℹ️ Información:</h6>
-                <ul class="mb-0">
-                    <li>La contraseña debe tener mínimo 6 caracteres, incluyendo números y letras minúsculas</li>
-                    <li>El correo será usado como nombre de usuario</li>
-                    <li>Los roles definen los permisos en el sistema</li>
-                </ul>
-            </div>
+
 
             <form asp-action="Crear" method="post" novalidate>
                 <!-- Validación General -->
@@ -110,17 +102,7 @@
                     }
                 </fieldset>
 
-                <!-- CONFIRMACIÓN -->
-                <fieldset class="mb-4 p-3 border rounded bg-light">
-                    <legend class="mb-3">✓ Confirmación</legend>
 
-                    <div class="form-check mb-3">
-                        <input class="form-check-input" type="checkbox" id="acceptTerms" required>
-                        <label class="form-check-label" for="acceptTerms">
-                            Confirmo que los datos ingresados son correctos
-                        </label>
-                    </div>
-                </fieldset>
 
                 <!-- BOTONES DE ACCIÓN -->
                 <div class="d-flex gap-2 justify-content-between">

@@ -1,22 +1,87 @@
 @model Inventarios.Models.UsuarioRolViewModel
 @{
-    ViewData["Title"] = "Eliminar usuario";
+    ViewData["Title"] = "Eliminar Usuario";
 }
 
-<h1>Eliminar usuario</h1>
-
-<div class="alert alert-danger">
-    Esta acción eliminará al usuario de forma permanente.
+<!-- HEADER -->
+<div class="mb-4">
+    <h1>🗑️ Eliminar Usuario</h1>
+    <p class="text-muted">Esta acción es irreversible</p>
 </div>
 
-<table class="table table-bordered w-auto">
-    <tr><th>Id</th><td>@Model.Id</td></tr>
-    <tr><th>Correo</th><td>@Model.Correo</td></tr>
-    <tr><th>Roles</th><td>@string.Join(", ", Model.Roles)</td></tr>
-</table>
+<!-- ADVERTENCIA -->
+<div class="alert alert-danger alert-lg" role="alert">
+    <h5 class="alert-heading">⚠️ Advertencia Importante</h5>
+    <p class="mb-0">
+        Esta acción eliminará al usuario de forma <strong>permanente</strong> del sistema. 
+        No se podrá recuperar. Asegúrate de que esta es la acción correcta.
+    </p>
+</div>
 
+<!-- INFORMACIÓN DEL USUARIO A ELIMINAR -->
+<div class="row justify-content-center mb-4">
+    <div class="col-lg-6">
+        <div class="card border-danger">
+            <div class="card-header bg-light border-danger">
+                <strong>📋 Información del Usuario</strong>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <h6 class="text-muted">📧 Correo Electrónico</h6>
+                    <p class="h6">@Model.Correo</p>
+                </div>
+
+                <div class="mb-3">
+                    <h6 class="text-muted">🔑 ID del Usuario</h6>
+                    <p class="h6"><code>@Model.Id.Substring(0, 12)...</code></p>
+                </div>
+
+                <div>
+                    <h6 class="text-muted">👤 Rol(es)</h6>
+                    <div>
+                        @if (Model.Roles?.Count > 0)
+                        {
+                            @foreach (var rol in Model.Roles)
+                            {
+                                var badgeClass = rol == "Admin" ? "badge bg-danger text-white" : "badge bg-success text-white";
+                                var roleIcon = rol == "Admin" ? "🔴" : "🟢";
+                                <span class="@badgeClass me-2">@roleIcon @rol</span>
+                            }
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary text-white">⚠️ Sin rol</span>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- FORMULARIO DE CONFIRMACIÓN -->
 <form asp-action="Eliminar" method="post">
     <input type="hidden" name="id" value="@Model.Id" />
-    <button type="submit" class="btn btn-danger">Eliminar</button>
-    <a class="btn btn-secondary" asp-action="Index">Cancelar</a>
+    
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <!-- Checkbox de confirmación -->
+            <div class="form-check mb-4 p-3 border rounded bg-light">
+                <input class="form-check-input" type="checkbox" id="confirmDelete" required>
+                <label class="form-check-label" for="confirmDelete">
+                    Confirmo que deseo eliminar este usuario permanentemente
+                </label>
+            </div>
+
+            <!-- Botones -->
+            <div class="d-flex gap-2">
+                <a class="btn btn-secondary flex-grow-1" asp-action="Index">
+                    ← Cancelar
+                </a>
+                <button type="submit" class="btn btn-danger flex-grow-1" onclick="return confirm('¿Estás completamente seguro? Esta acción NO se puede deshacer.')">
+                    🗑️ Eliminar Usuario
+                </button>
+            </div>
+        </div>
+    </div>
 </form>

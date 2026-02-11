@@ -1,28 +1,129 @@
 @model Inventarios.Models.PrestamoCrearViewModel
 @{
-    ViewData["Title"] = "Registrar préstamo";
+    ViewData["Title"] = "Registrar Préstamo";
 }
 
-<h1>Registrar préstamo</h1>
+<!-- HEADER -->
+<div class="mb-4">
+    <h1>📦 Registrar Nuevo Préstamo</h1>
+    <p class="text-muted">Solicita herramientas disponibles del inventario</p>
+</div>
 
 @if (Model.HerramientasDisponibles.Count == 0)
 {
-    <div class="alert alert-info">No hay herramientas disponibles para prestar.</div>
+    <!-- SIN HERRAMIENTAS DISPONIBLES -->
+    <div class="alert alert-warning alert-lg text-center p-5" role="alert">
+        <h4>⚠️ Sin Disponibilidad</h4>
+        <p class="mb-3">No hay herramientas disponibles en este momento.</p>
+        <a asp-action="Index" class="btn btn-secondary">
+            ← Volver
+        </a>
+    </div>
 }
 else
 {
-    <form asp-action="Crear" method="post">
-        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <!-- FORMULARIO DE SELECCIÓN Y REGISTRO -->
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <strong>🔍 Seleccionar Herramienta</strong>
+                </div>
+                <div class="card-body">
+                    <!-- Filtros -->
+                    <form asp-action="Crear" method="get" class="mb-4">
+                        <div class="row g-2">
+                            <div class="col-md-5">
+                                <label asp-for="Estante" class="form-label">📍 Filtrar por Estante</label>
+                                <select asp-for="Estante" asp-items="Model.Estantes" class="form-select" onchange="this.form.submit()">
+                                    <option value="">-- Todos --</option>
+                                </select>
+                            </div>
+                            <div class="col-md-7">
+                                <label asp-for="HerramientaId" class="form-label">🔧 Seleccionar Herramienta</label>
+                                <select asp-for="HerramientaId" asp-items="Model.HerramientasDisponibles" class="form-select" onchange="this.form.submit()">
+                                    <option value="">-- Elige una herramienta --</option>
+                                </select>
+                            </div>
+                        </div>
+                    </form>
 
-        <div class="mb-3">
-            <label asp-for="HerramientaId" class="form-label">Herramienta</label>
-            <select asp-for="HerramientaId" asp-items="Model.HerramientasDisponibles" class="form-select"></select>
-            <span asp-validation-for="HerramientaId" class="text-danger"></span>
+                    <!-- Información de disponibilidad -->
+                    @if (Model.HerramientaId != Guid.Empty)
+                    {
+                        <div class="alert alert-info">
+                            <strong>✅ Disponibles:</strong> @Model.DisponiblesHerramienta unidades
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- FORMULARIO DE CREACIÓN -->
+                @if (Model.HerramientaId != Guid.Empty)
+                {
+                    <div class="card">
+                        <div class="card-header">
+                            <strong>📋 Detalles del Préstamo</strong>
+                        </div>
+                    <div class="card-body">
+                        <form asp-action="Crear" method="post" novalidate>
+                            <!-- Validación -->
+                            <div asp-validation-summary="ModelOnly" class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <strong>⚠️ Errores encontrados:</strong>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+
+                            <input type="hidden" asp-for="Estante" />
+                            <input type="hidden" asp-for="HerramientaId" />
+
+                            <!-- Cantidad -->
+                            <div class="form-group mb-4">
+                                <label asp-for="Cantidad" class="form-label">📊 Cantidad a Prestar</label>
+                                <input asp-for="Cantidad" class="form-control form-control-lg" type="number" min="1" 
+                                       max="@(Model.DisponiblesHerramienta > 0 ? Model.DisponiblesHerramienta : 1)" 
+                                       value="1" />
+                                <small class="form-text text-muted d-block mt-2">
+                                    Máximo disponible: @Model.DisponiblesHerramienta unidades
+                                </small>
+                                <span asp-validation-for="Cantidad" class="text-danger"></span>
+                            </div>
+
+                            <!-- Botones -->
+                            <div class="d-flex gap-2">
+                                <a class="btn btn-secondary flex-grow-1" asp-action="Index">
+                                    ← Cancelar
+                                </a>
+                                <button type="submit" class="btn btn-success flex-grow-1">
+                                    ✅ Registrar Préstamo
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            }
         </div>
 
-        <button type="submit" class="btn btn-primary">Guardar préstamo</button>
-        <a class="btn btn-secondary" asp-action="Index">Volver</a>
-    </form>
+        <!-- INFO LATERAL -->
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <strong>ℹ️ Información</strong>
+                </div>
+                <div class="card-body">
+                    <p class="mb-2"><strong>📦 Total Disponible:</strong></p>
+                    <p class="h5 text-success mb-4">@Model.HerramientasDisponibles.Count</p>
+
+                    <p class="mb-2"><strong>⚙️ Pasos:</strong></p>
+                    <ol class="small">
+                        <li>Selecciona un estante (opcional)</li>
+                        <li>Elige la herramienta</li>
+                        <li>Ingresa la cantidad</li>
+                        <li>Confirma el préstamo</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
 }
 
 @section Scripts {

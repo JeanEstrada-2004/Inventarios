@@ -84,17 +84,56 @@ public class HerramientasController : Controller
         if (id != modelo.Id) return NotFound();
         if (!ModelState.IsValid) return View(modelo);
 
-        var herramienta = await _context.Herramientas.FindAsync(id);
+        var herramienta = await _context.Herramientas
+            .Include(h => h.Unidades)
+            .FirstOrDefaultAsync(h => h.Id == id);
         if (herramienta == null) return NotFound();
 
         herramienta.Codigo = modelo.Codigo;
         herramienta.Nombre = modelo.Nombre;
         herramienta.Marca = modelo.Marca;
         herramienta.Estante = modelo.Estante;
+        // Ajuste unidades
+        var diferencia = modelo.CantidadTotal - herramienta.CantidadTotal;
+        if (diferencia > 0)
+        {
+            var start = herramienta.Unidades.Count;
+            for (int i = 0; i < diferencia; i++)
+            {
+                var nueva = new HerramientaUnidad
+                {
+                    HerramientaId = herramienta.Id,
+                    Estado = EstadoHerramientaUnidad.Disponible,
+                    Etiqueta = $"Unidad {start + i + 1}"
+                };
+                _context.HerramientasUnidades.Add(nueva);
+                herramienta.Unidades.Add(nueva);
+            }
+        }
+        else if (diferencia < 0)
+        {
+            var aEliminar = -diferencia;
+            var disponibles = herramienta.Unidades
+                .Where(u => u.Estado == EstadoHerramientaUnidad.Disponible)
+                .Take(aEliminar)
+                .ToList();
+            if (disponibles.Count < aEliminar)
+            {
+                ModelState.AddModelError(string.Empty, "No puedes reducir la cantidad porque hay unidades prestadas o dañadas.");
+                return View(modelo);
+            }
+            _context.HerramientasUnidades.RemoveRange(disponibles);
+            foreach (var u in disponibles)
+            {
+                herramienta.Unidades.Remove(u);
+            }
+        }
+
         herramienta.CantidadTotal = modelo.CantidadTotal;
-        herramienta.CantidadDisponible = Math.Min(modelo.CantidadDisponible, modelo.CantidadTotal);
         herramienta.Especificacion = modelo.Especificacion;
         herramienta.Observaciones = modelo.Observaciones;
+        // recalcular disponibles
+        herramienta.CantidadDisponible = herramienta.Unidades.Count(u => u.Estado == EstadoHerramientaUnidad.Disponible);
 
         await _context.SaveChangesAsync();
         return RedirectToAction(nameof(Index));
@@ -141,13 +180,20 @@ public class HerramientasController : Controller
     {
         if (id != modelo.Id) return NotFound();
         var unidad = await _context.HerramientasUnidades
-            .Include(u => u.Herramienta)
+            .Include(u => u.Herramienta!)
+                .ThenInclude(h => h.Unidades)
             .FirstOrDefaultAsync(u => u.Id == id);
         if (unidad == null) return NotFound();
 
         unidad.Etiqueta = modelo.Etiqueta;
         unidad.Estado = modelo.Estado;
         unidad.Observacion = modelo.Observacion;
+
+        // Recalcular disponibilidad de la herramienta asociada
+        if (unidad.Herramienta != null)
+        {
+            unidad.Herramienta.CantidadDisponible = unidad.Herramienta.Unidades.Count(u => u.Estado == EstadoHerramientaUnidad.Disponible);
+        }
 
         await _context.SaveChangesAsync();
         TempData["Mensaje"] = "Unidad actualizada.";

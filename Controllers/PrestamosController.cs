@@ -39,9 +39,9 @@ public class PrestamosController : Controller
         return View(prestamos);
     }
 
-    public async Task<IActionResult> Crear()
+    public async Task<IActionResult> Crear(string? estante = null, Guid? herramientaId = null)
     {
-        var viewModel = await ConstruirViewModelAsync();
+        var viewModel = await ConstruirViewModelAsync(estante, herramientaId);
         if (!viewModel.HerramientasDisponibles.Any())
         {
             TempData["Error"] = "No hay unidades disponibles para prestar.";
@@ -55,21 +55,21 @@ public class PrestamosController : Controller
     {
         if (!ModelState.IsValid)
         {
-            modelo = await ConstruirViewModelAsync();
+            modelo = await ConstruirViewModelAsync(modelo.Estante, modelo.HerramientaId);
             return View(modelo);
         }
 
-        // Tomar la primera unidad disponible de la herramienta seleccionada
-        var unidad = await _context.HerramientasUnidades
+        var unidades = await _context.HerramientasUnidades
             .Include(u => u.Herramienta)
             .Where(u => u.HerramientaId == modelo.HerramientaId && u.Estado == EstadoHerramientaUnidad.Disponible)
-            .FirstOrDefaultAsync();
+            .Take(modelo.Cantidad)
+            .ToListAsync();
 
-        if (unidad == null)
+        if (unidades.Count < modelo.Cantidad)
         {
             TempData["Error"] = "La unidad seleccionada no está disponible.";
             ModelState.AddModelError(string.Empty, "La unidad seleccionada no está disponible.");
-            modelo = await ConstruirViewModelAsync();
+            modelo = await ConstruirViewModelAsync(modelo.Estante);
             return View(modelo);
         }
 
@@ -83,18 +83,18 @@ public class PrestamosController : Controller
             Detalles = new List<PrestamoDetalle>()
         };
 
-        var detalle = new PrestamoDetalle
+        foreach (var unidad in unidades)
         {
-            Prestamo = prestamo,
-            HerramientaUnidad = unidad
-        };
-
-        prestamo.Detalles.Add(detalle);
-        unidad.Estado = EstadoHerramientaUnidad.Prestada;
-
-        if (unidad.Herramienta != null && unidad.Herramienta.CantidadDisponible > 0)
-        {
-            unidad.Herramienta.CantidadDisponible -= 1;
+            prestamo.Detalles.Add(new PrestamoDetalle
+            {
+                Prestamo = prestamo,
+                HerramientaUnidad = unidad
+            });
+            unidad.Estado = EstadoHerramientaUnidad.Prestada;
+            if (unidad.Herramienta != null && unidad.Herramienta.CantidadDisponible > 0)
+            {
+                unidad.Herramienta.CantidadDisponible -= 1;
+            }
         }
 
         _context.Prestamos.Add(prestamo);
@@ -141,6 +141,19 @@ public class PrestamosController : Controller
 
         return View(prestamo);
     }
+    
+    public async Task<IActionResult> Detalle(Guid id)
+    {
+        var prestamo = await _context.Prestamos
+            .Include(p => p.Usuario)
+            .Include(p => p.Detalles)
+                .ThenInclude(d => d.HerramientaUnidad!)
+                    .ThenInclude(u => u.Herramienta)
+            .AsNoTracking()
+            .FirstOrDefaultAsync(p => p.Id == id);
+        if (prestamo == null) return NotFound();
+        return View(prestamo);
+    }
 
     [HttpPost, ActionName("ConfirmarDevolucion")]
     [Authorize(Roles = "Admin")]
@@ -178,23 +191,34 @@ public class PrestamosController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-    private async Task<PrestamoCrearViewModel> ConstruirViewModelAsync()
+    private async Task<PrestamoCrearViewModel> ConstruirViewModelAsync(string? estanteSeleccionado = null, Guid? herramientaSeleccionada = null)
     {
+        var estantes = new[] { "Estante A", "Estante B", "Estante C", "Estante D" };
+        var estante = estanteSeleccionado ?? estantes.First();
+
         var herramientas = await _context.Herramientas
             .Include(h => h.Unidades)
-            .Where(h => h.Unidades.Any(u => u.Estado == EstadoHerramientaUnidad.Disponible))
+            .Where(h => h.Estante == estante && h.Unidades.Any(u => u.Estado == EstadoHerramientaUnidad.Disponible))
             .AsNoTracking()
             .ToListAsync();
 
         var items = herramientas.Select(h => new SelectListItem
         {
             Value = h.Id.ToString(),
-            Text = $"{h.Codigo} - {h.Nombre} ({h.Estante}) | Disp: {h.Unidades.Count(u => u.Estado == EstadoHerramientaUnidad.Disponible)}"
+            Text = $"{h.Codigo} - {h.Nombre} ({h.Estante}) | Disp: {h.Unidades.Count(u => u.Estado == EstadoHerramientaUnidad.Disponible)}",
+            Selected = herramientaSeleccionada.HasValue && h.Id == herramientaSeleccionada.Value
         }).ToList();
+
+        var herramienta = herramientas.FirstOrDefault(h => h.Id == herramientaSeleccionada) ?? herramientas.FirstOrDefault();
+        var disponibles = herramienta?.Unidades.Count(u => u.Estado == EstadoHerramientaUnidad.Disponible) ?? 0;
 
         return new PrestamoCrearViewModel
         {
-            HerramientasDisponibles = items
+            Estante = estante,
+            Estantes = estantes.Select(e => new SelectListItem { Value = e, Text = e, Selected = e == estante }).ToList(),
+            HerramientasDisponibles = items,
+            HerramientaId = herramienta?.Id ?? Guid.Empty,
+            DisponiblesHerramienta = disponibles
         };
     }
 }

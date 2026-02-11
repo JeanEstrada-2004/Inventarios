@@ -1,41 +1,38 @@
 @model IEnumerable<Inventarios.Models.UsuarioRolViewModel>
 @{
-    ViewData["Title"] = "Gestión de Usuarios";
+    ViewData["Title"] = "Usuarios";
     var usuarios = Model?.ToList() ?? new List<Inventarios.Models.UsuarioRolViewModel>();
 }
 
-<!-- HEADER -->
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-        <h1>👥 Gestión de Usuarios</h1>
-        <p class="text-muted">Administra usuarios y roles del sistema</p>
-    </div>
-    <a asp-action="Crear" class="btn btn-primary btn-lg">
-        ➕ Nuevo Usuario
-    </a>
-</div>
+<h1>Usuarios</h1>
 
-<!-- BÚSQUEDA -->
-<div class="card mb-4">
-    <div class="card-body">
-        <div class="input-group">
-            <span class="input-group-text">🔍</span>
-            <input type="text" id="searchInput" class="form-control" 
-                   placeholder="Buscar por correo..." />
+<p>
+    <a asp-action="Crear" class="btn btn-primary">Nuevo usuario</a>
+</p>
+
+@if (usuarios.Count == 0)
+{
+    <div class="alert alert-info">No hay usuarios registrados.</div>
+}
+else
+{
+    <div class="card mb-3">
+        <div class="card-body">
+            <div class="input-group">
+                <span class="input-group-text">🔍</span>
+                <input type="text" id="searchInput" class="form-control" placeholder="Buscar por nombre, correo o rol..." />
+            </div>
         </div>
     </div>
-</div>
 
-@if (usuarios.Count > 0)
-{
-    <!-- TABLA DE USUARIOS -->
     <div class="table-responsive">
-        <table class="table table-hover" id="usuariosTable">
+        <table class="table table-striped" id="usuariosTable">
             <thead>
                 <tr>
-                    <th>📧 Correo</th>
-                    <th>👤 Rol(es)</th>
-                    <th>⚙️ Acciones</th>
+                    <th>Nombre de usuario</th>
+                    <th>Correo</th>
+                    <th>Roles</th>
+                    <th>Acciones</th>
                 </tr>
             </thead>
             <tbody>
@@ -43,91 +40,35 @@
                 {
                     var roles = usuario.Roles ?? new List<string>();
                     <tr>
-                        <td>
-                            <strong>@usuario.Correo</strong>
-                        </td>
+                        <td>@usuario.UserName</td>
+                        <td>@usuario.Correo</td>
                         <td>
                             @if (roles.Count > 0)
                             {
-                                @foreach (var rol in roles)
-                                {
-                                    var badgeClass = rol == "Admin" ? "badge bg-danger text-white" : "badge bg-success text-white";
-                                    <span class="@badgeClass me-2">
-                                        @if (rol == "Admin")
-                                        {
-                                            <span>🔴 @rol</span>
-                                        }
-                                        else
-                                        {
-                                            <span>🟢 @rol</span>
-                                        }
-                                    </span>
-                                }
+                                @string.Join(", ", roles)
                             }
                             else
                             {
-                                <span class="badge bg-secondary text-white">⚠️ Sin rol</span>
+                                <span class="text-muted">Sin rol</span>
                             }
                         </td>
                         <td>
-                            <a class="btn btn-sm btn-outline-primary" asp-action="Detalle" asp-route-id="@usuario.Id">
-                                👁️ Ver
-                            </a>
+                            <a class="btn btn-sm btn-outline-primary" asp-action="Detalle" asp-route-id="@usuario.Id">Ver</a>
                         </td>
                     </tr>
                 }
             </tbody>
         </table>
     </div>
-
-    <!-- ESTADÍSTICAS -->
-    <div class="row mt-5">
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-body text-center">
-                    <h3 class="card-title text-primary">@usuarios.Count</h3>
-                    <p class="card-text">👥 Total de Usuarios</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-body text-center">
-                    <h3 class="card-title text-danger">@usuarios.Count(u => u.Roles?.Contains("Admin") == true)</h3>
-                    <p class="card-text">🔴 Administradores</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-body text-center">
-                    <h3 class="card-title text-success">@usuarios.Count(u => u.Roles?.Contains("Usuario") == true)</h3>
-                    <p class="card-text">🟢 Usuarios</p>
-                </div>
-            </div>
-        </div>
-    </div>
-}
-else
-{
-    <div class="alert alert-info alert-lg text-center p-5" role="alert">
-        <h4>📭 No hay usuarios registrados</h4>
-        <p class="mb-0">
-            <a asp-action="Crear" class="alert-link">Crear el primer usuario</a>
-        </p>
-    </div>
 }
 
 @section Scripts {
     <script>
-        // Búsqueda en tabla
-        document.getElementById('searchInput').addEventListener('keyup', function() {
+        document.getElementById('searchInput')?.addEventListener('keyup', function () {
             const filter = this.value.toUpperCase();
-            const table = document.getElementById('usuariosTable');
-            const rows = table?.querySelectorAll('tbody tr') || [];
-
+            const rows = document.querySelectorAll('#usuariosTable tbody tr');
             rows.forEach(row => {
-                const text = row.textContent.toUpperCase();
+                const text = row.textContent?.toUpperCase() ?? '';
                 row.style.display = text.includes(filter) ? '' : 'none';
             });
         });

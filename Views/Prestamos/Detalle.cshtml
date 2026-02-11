@@ -1,0 +1,103 @@
+@model Inventarios.Models.Prestamo
+@{
+    ViewData["Title"] = "Detalle de Préstamo";
+    var zonaLima = TimeZoneInfo.FindSystemTimeZoneById("SA Pacific Standard Time");
+    var inicioLocal = TimeZoneInfo.ConvertTimeFromUtc(DateTime.SpecifyKind(Model.FechaPrestamo, DateTimeKind.Utc), zonaLima);
+    DateTime? devolucionLocal = Model.FechaDevolucion.HasValue
+        ? TimeZoneInfo.ConvertTimeFromUtc(DateTime.SpecifyKind(Model.FechaDevolucion.Value, DateTimeKind.Utc), zonaLima)
+        : null;
+    var estadoIcon = Model.Estado == EstadoPrestamo.Activo ? "🟢" :
+                     Model.Estado == EstadoPrestamo.DevueltoPendiente ? "🟡" : "✅";
+    var estadoBadgeClass = Model.Estado == EstadoPrestamo.Activo ? "badge bg-success text-white" :
+                           Model.Estado == EstadoPrestamo.DevueltoPendiente ? "badge bg-warning text-dark" : "badge bg-secondary text-white";
+}
+
+<!-- HEADER -->
+<div class="mb-4">
+    <h1>📦 Detalle del Préstamo</h1>
+    <p class="text-muted">Información completa del préstamo</p>
+</div>
+
+<!-- INFORMACIÓN PRINCIPAL -->
+<div class="row mb-4">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <strong>👤 Información del Préstamo</strong>
+            </div>
+            <div class="card-body">
+                <div class="mb-4">
+                    <h6 class="text-muted">👤 Usuario</h6>
+                    <p class="h6">@(Model.Usuario?.UserName ?? Model.Usuario?.Email ?? "Usuario desconocido")</p>
+                </div>
+
+                <div class="mb-4">
+                    <h6 class="text-muted">📅 Fecha de Préstamo</h6>
+                    <p class="h6">@inicioLocal.ToString("dd/MM/yyyy HH:mm")</p>
+                </div>
+
+                @if (devolucionLocal.HasValue)
+                {
+                    <div class="mb-4">
+                        <h6 class="text-muted">📅 Fecha de Devolución</h6>
+                        <p class="h6">@devolucionLocal.Value.ToString("dd/MM/yyyy HH:mm")</p>
+                    </div>
+                }
+
+                <div>
+                    <h6 class="text-muted">📊 Estado</h6>
+                    <p><span class="@estadoBadgeClass">@estadoIcon @Model.Estado</span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- HERRAMIENTAS -->
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <strong>🔧 Herramientas Prestadas (@Model.Detalles?.Count ?? 0)</strong>
+            </div>
+            <div class="card-body">
+                @if (Model.Detalles?.Count > 0)
+                {
+                    <div class="list-group">
+                        @foreach (var d in Model.Detalles)
+                        {
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="mb-1">@d.HerramientaUnidad?.Herramienta?.Nombre</h6>
+                                        <small class="text-muted">
+                                            📦 @d.HerramientaUnidad?.Herramienta?.Codigo
+                                        </small>
+                                    </div>
+                                    <span class="badge bg-light text-dark">@d.HerramientaUnidad?.Etiqueta</span>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted mb-0">Sin herramientas registradas</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- BOTONES DE ACCIÓN -->
+<div class="d-flex gap-2">
+    <a class="btn btn-secondary" asp-action="Index">
+        ← Volver al Listado
+    </a>
+    @if (Model.Estado == EstadoPrestamo.Activo)
+    {
+        <form asp-action="SolicitarDevolucion" asp-route-id="@Model.Id" method="post" style="display: inline;">
+            <button type="submit" class="btn btn-warning" onclick="return confirm('¿Confirmas la solicitud de devolución?')">
+                ↩️ Solicitar Devolución
+            </button>
+        </form>
+    }
+</div>

@@ -32,6 +32,7 @@ public class UsuariosController : Controller
             usuarios.Add(new UsuarioRolViewModel
             {
                 Id = user.Id,
+                UserName = user.UserName ?? string.Empty,
                 Correo = user.Email ?? user.UserName ?? string.Empty,
                 Roles = roles.ToList()
             });
@@ -193,6 +194,33 @@ public class UsuariosController : Controller
 
         await _signInManager.RefreshSignInAsync(user);
         TempData["Mensaje"] = "Perfil actualizado.";
+        return RedirectToAction(nameof(Perfil));
+    }
+
+    public IActionResult CambiarContrasena()
+    {
+        return View(new CambiarContrasenaViewModel());
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CambiarContrasena(CambiarContrasenaViewModel modelo)
+    {
+        if (!ModelState.IsValid) return View(modelo);
+
+        var user = await _userManager.GetUserAsync(User);
+        if (user == null) return RedirectToAction("Login", "Account");
+
+        var resultado = await _userManager.ChangePasswordAsync(user, modelo.ContrasenaActual, modelo.ContrasenaNueva);
+        if (!resultado.Succeeded)
+        {
+            foreach (var error in resultado.Errors)
+                ModelState.AddModelError(string.Empty, error.Description);
+            return View(modelo);
+        }
+
+        await _signInManager.RefreshSignInAsync(user);
+        TempData["Mensaje"] = "Contraseña actualizada.";
         return RedirectToAction(nameof(Perfil));
     }
 

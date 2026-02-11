@@ -1,34 +1,67 @@
 @model Inventarios.Models.HerramientaUnidad
 @{
-    ViewData["Title"] = "Editar unidad";
+    ViewData["Title"] = "Editar Unidad";
 }
 
-<h1>Editar unidad</h1>
+<!-- HEADER -->
+<div class="mb-4">
+    <h1>✏️ Editar Unidad</h1>
+    <p class="text-muted">@Model.Herramienta?.Nombre (@Model.Herramienta?.Codigo)</p>
+</div>
 
-<table class="table table-bordered w-auto">
-    <tr><th>Herramienta</th><td>@Model.Herramienta?.Nombre (@Model.Herramienta?.Codigo)</td></tr>
-    <tr><th>Id</th><td>@Model.Id</td></tr>
-</table>
+<!-- FORMULARIO -->
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <strong>📝 Información de la Unidad</strong>
+            </div>
+            <div class="card-body">
+                <form asp-action="EditarUnidad" method="post" novalidate>
+                    <input type="hidden" asp-for="Id" />
+                    <input type="hidden" asp-for="HerramientaId" />
 
-<form asp-action="EditarUnidad" method="post">
-    <input type="hidden" asp-for="Id" />
-    <input type="hidden" asp-for="HerramientaId" />
-    <div class="mb-3">
-        <label asp-for="Etiqueta" class="form-label">Nombre/etiqueta</label>
-        <input asp-for="Etiqueta" class="form-control" />
-        <span asp-validation-for="Etiqueta" class="text-danger"></span>
+                    <!-- Validación -->
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <strong>⚠️ Errores encontrados:</strong>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+
+                    <!-- Etiqueta -->
+                    <div class="form-group mb-3">
+                        <label asp-for="Etiqueta" class="form-label">🏷️ Etiqueta/Nombre</label>
+                        <input asp-for="Etiqueta" class="form-control form-control-lg" placeholder="Ej: Unidad #1" />
+                        <span asp-validation-for="Etiqueta" class="text-danger"></span>
+                    </div>
+
+                    <!-- Estado -->
+                    <div class="form-group mb-3">
+                        <label asp-for="Estado" class="form-label">📊 Estado</label>
+                        <select asp-for="Estado" class="form-select form-select-lg" asp-items="Html.GetEnumSelectList<Inventarios.Models.EstadoHerramientaUnidad>()"></select>
+                        <span asp-validation-for="Estado" class="text-danger"></span>
+                    </div>
+
+                    <!-- Observación -->
+                    <div class="form-group mb-4">
+                        <label asp-for="Observacion" class="form-label">📝 Observación (Opcional)</label>
+                        <textarea asp-for="Observacion" class="form-control" rows="3" placeholder="Notas adicionales sobre la unidad..."></textarea>
+                        <span asp-validation-for="Observacion" class="text-danger"></span>
+                    </div>
+
+                    <!-- Botones -->
+                    <div class="d-flex gap-2">
+                        <a class="btn btn-secondary flex-grow-1" asp-action="Detalle" asp-route-id="@Model.HerramientaId">
+                            ← Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-primary flex-grow-1">
+                            💾 Guardar Cambios
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
-    <div class="mb-3">
-        <label asp-for="Estado" class="form-label">Estado</label>
-        <select asp-for="Estado" class="form-select" asp-items="Html.GetEnumSelectList<Inventarios.Models.EstadoHerramientaUnidad>()"></select>
-    </div>
-    <div class="mb-3">
-        <label asp-for="Observacion" class="form-label">Observación</label>
-        <textarea asp-for="Observacion" class="form-control"></textarea>
-    </div>
-    <button type="submit" class="btn btn-primary">Guardar</button>
-    <a class="btn btn-secondary" asp-action="Detalle" asp-route-id="@Model.HerramientaId">Cancelar</a>
-</form>
+</div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

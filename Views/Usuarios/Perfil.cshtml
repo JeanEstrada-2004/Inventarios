@@ -1,33 +1,242 @@
 @model Inventarios.Models.PerfilViewModel
 @{
-    ViewData["Title"] = "Mi perfil";
+    ViewData["Title"] = "Mi Perfil";
 }
 
-<div class="container py-3">
-    <div class="row">
-        <div class="col-lg-6">
-            <div class="card shadow-sm mb-3">
-                <div class="card-body">
-                    <h1 class="h3 mb-3">Mi perfil</h1>
-                    <p class="text-muted mb-4">Información de tu cuenta</p>
-                    <dl class="row mb-0">
-                        <dt class="col-sm-4">Id</dt>
-                        <dd class="col-sm-8">@Model.Id</dd>
+<!-- HEADER CON AVATAR -->
+<div class="perfil-header mb-5">
+    <div class="perfil-cover"></div>
+    <div class="perfil-content">
+        <div class="row align-items-end">
+            <div class="col-md-8">
+                <div class="perfil-avatar">
+                    <div class="avatar-circle">@(Model.Correo?.FirstOrDefault().ToString().ToUpper() ?? "U")</div>
+                </div>
+                <div class="perfil-info ms-4">
+                    <h1>@Model.UserName</h1>
+                    <p class="text-muted">@Model.Correo</p>
+                    <div class="badges-container mt-2">
+                        @{
+                            var rolBadgeClass = Model.Rol == "Admin" ? "badge bg-danger text-white" : "badge bg-success text-white";
+                            var rolIcon = Model.Rol == "Admin" ? "🔴" : "🟢";
+                        }
+                        <span class="@rolBadgeClass">@rolIcon @Model.Rol</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 text-end">
+                <a href="#" class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#modalCambiarContrasena">
+                    🔐 Cambiar Contraseña
+                </a>
+                <a asp-action="EditarPerfil" class="btn btn-outline-secondary">
+                    ✏️ Editar Perfil
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
 
-                        <dt class="col-sm-4">Usuario</dt>
-                        <dd class="col-sm-8">@Model.UserName</dd>
-
-                        <dt class="col-sm-4">Correo</dt>
-                        <dd class="col-sm-8">@Model.Correo</dd>
-
-                        <dt class="col-sm-4">Rol</dt>
-                        <dd class="col-sm-8"><span class="badge bg-primary">@Model.Rol</span></dd>
-                    </dl>
-                    <div class="mt-4">
-                        <a class="btn btn-success" asp-action="EditarPerfil">Editar perfil</a>
+<!-- INFORMACIÓN DEL USUARIO -->
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <strong>📋 Información de la Cuenta</strong>
+            </div>
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <h6 class="text-muted">👤 Nombre de Usuario</h6>
+                        <p class="h6">@Model.UserName</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-muted">📧 Correo Electrónico</h6>
+                        <p class="h6">@Model.Correo</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="text-muted">🔑 ID del Usuario</h6>
+                        <p class="h6"><code>@Model.Id.Substring(0, 12)...</code></p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-muted">🎯 Rol Actual</h6>
+                        <p class="h6">
+                            @{
+                                var badgeClass = Model.Rol == "Admin" ? "badge bg-danger text-white" : "badge bg-success text-white";
+                                var icon = Model.Rol == "Admin" ? "🔴" : "🟢";
+                            }
+                            <span class="@badgeClass">@icon @Model.Rol</span>
+                        </p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- ACCESO RÁPIDO -->
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <strong>⚡ Acceso Rápido</strong>
+            </div>
+            <div class="card-body d-flex flex-column gap-2">
+                <a asp-controller="Herramientas" asp-action="Index" class="btn btn-outline-primary">
+                    🔧 Ver Herramientas
+                </a>
+                <a asp-controller="Prestamos" asp-action="Index" class="btn btn-outline-primary">
+                    📦 Ver Préstamos
+                </a>
+                @if (User.IsInRole("Admin"))
+                {
+                    <a asp-controller="Usuarios" asp-action="Index" class="btn btn-outline-danger">
+                        👥 Gestionar Usuarios
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
 </div>
+
+<!-- MODAL CAMBIAR CONTRASEÑA -->
+<div class="modal fade" id="modalCambiarContrasena" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">🔐 Cambiar Contraseña</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form asp-action="CambiarContrasena" method="post" novalidate>
+                <div class="modal-body">
+                    @if (ViewBag.Mensaje != null)
+                    {
+                        <div class="alert alert-success">@ViewBag.Mensaje</div>
+                    }
+
+                    <!-- Contraseña Actual -->
+                    <div class="form-group mb-3">
+                        <label class="form-label">Contraseña Actual</label>
+                        <input type="password" name="ContrasenaActual" class="form-control" required />
+                    </div>
+
+                    <!-- Contraseña Nueva -->
+                    <div class="form-group mb-3">
+                        <label class="form-label">Contraseña Nueva</label>
+                        <div class="input-group">
+                            <input type="password" name="ContrasenaNueva" id="newPass" class="form-control" required />
+                            <button class="btn btn-outline-secondary" type="button" onclick="togglePass('newPass')">
+                                👁️
+                            </button>
+                        </div>
+                        <div id="strengthBar" class="progress mt-2" style="height:20px; display:none;">
+                            <div class="progress-bar" id="strength"></div>
+                        </div>
+                    </div>
+
+                    <!-- Confirmar Contraseña -->
+                    <div class="form-group mb-3">
+                        <label class="form-label">Confirmar Contraseña</label>
+                        <input type="password" name="ConfirmarContrasena" class="form-control" required />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">💾 Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.perfil-header {
+    position: relative;
+    margin: -20px -20px 0 -20px;
+    background: white;
+    border-radius: 0 0 10px 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.perfil-cover {
+    height: 200px;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    border-radius: 0;
+}
+
+.perfil-content {
+    padding: 0 30px 30px 30px;
+    margin-top: -80px;
+    position: relative;
+    z-index: 1;
+}
+
+.perfil-avatar {
+    display: inline-block;
+}
+
+.avatar-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+    color: white;
+    font-size: 48px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 5px 15px rgba(243, 156, 18, 0.4);
+    border: 4px solid white;
+}
+
+.perfil-info h1 {
+    margin: 0;
+    color: #1a1a2e;
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.perfil-info p {
+    font-size: 16px;
+    margin-bottom: 10px;
+}
+
+.badges-container {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+</style>
+
+@section Scripts {
+    <script>
+        function togglePass(id) {
+            const input = document.getElementById(id);
+            input.type = input.type === 'password' ? 'text' : 'password';
+        }
+
+        document.getElementById('newPass')?.addEventListener('input', function() {
+            const pass = this.value;
+            let strength = 0;
+            const bar = document.getElementById('strength');
+            const container = document.getElementById('strengthBar');
+
+            container.style.display = 'block';
+
+            if (pass.length >= 6) strength += 25;
+            if (pass.length >= 8) strength += 25;
+            if (/[0-9]/.test(pass)) strength += 25;
+            if (/[a-z]/.test(pass)) strength += 25;
+
+            bar.style.width = strength + '%';
+            
+            if (strength < 50) {
+                bar.className = 'progress-bar bg-danger';
+            } else if (strength < 75) {
+                bar.className = 'progress-bar bg-warning';
+            } else {
+                bar.className = 'progress-bar bg-success';
+            }
+        });
+    </script>
+}

@@ -169,4 +169,4 @@ C:\JeanEstrada\Universidad-Pronabec\Universidad\Clases\Ciclo VII\Proyectos\Contr
 C:\JeanEstrada\Universidad-Pronabec\Universidad\Clases\Ciclo VII\Proyectos\ControlInventario\Inventarios\obj\Debug\net9.0\Inventarios.csproj.AssemblyReference.cache
 C:\JeanEstrada\Universidad-Pronabec\Universidad\Clases\Ciclo VII\Proyectos\ControlInventario\Inventarios\obj\Debug\net9.0\Inventar.5CC61553.Up2Date
 C:\JeanEstrada\Universidad-Pronabec\Universidad\Clases\Ciclo VII\Proyectos\ControlInventario\Inventarios\obj\Debug\net9.0\compressed\at35z77ihp-fqwn5o147j.gz
-C:\JeanEstrada\Universidad-Pronabec\Universidad\Clases\Ciclo VII\Proyectos\ControlInventario\Inventarios\obj\Debug\net9.0\compressed\20xi0t7ch8-es15x4d4lv.gz
+C:\JeanEstrada\Universidad-Pronabec\Universidad\Clases\Ciclo VII\Proyectos\ControlInventario\Inventarios\obj\Debug\net9.0\compressed\20xi0t7ch8-s12rub4k62.gz

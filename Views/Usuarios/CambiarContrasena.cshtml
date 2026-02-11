@@ -1,0 +1,119 @@
+@model Inventarios.Models.CambiarContrasenaViewModel
+@{
+    ViewData["Title"] = "Cambiar Contraseña";
+}
+
+<!-- HEADER -->
+<div class="mb-4">
+    <h1>🔐 Cambiar Contraseña</h1>
+    <p class="text-muted">Actualiza tu contraseña de forma segura</p>
+</div>
+
+<!-- FORMULARIO -->
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <strong>🔒 Seguridad de Cuenta</strong>
+            </div>
+            <div class="card-body">
+                <form asp-action="CambiarContrasena" method="post" novalidate>
+                    <!-- Validación -->
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <strong>⚠️ Errores encontrados:</strong>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+
+                    <!-- Contraseña Actual -->
+                    <div class="form-group mb-3">
+                        <label asp-for="ContrasenaActual" class="form-label">🔐 Contraseña Actual</label>
+                        <div class="input-group">
+                            <input asp-for="ContrasenaActual" class="form-control form-control-lg" type="password" 
+                                   id="currentPass" placeholder="Ingresa tu contraseña actual" />
+                            <button class="btn btn-outline-secondary" type="button" onclick="togglePass('currentPass')">
+                                👁️
+                            </button>
+                        </div>
+                        <span asp-validation-for="ContrasenaActual" class="text-danger"></span>
+                    </div>
+
+                    <!-- Contraseña Nueva -->
+                    <div class="form-group mb-3">
+                        <label asp-for="ContrasenaNueva" class="form-label">🔑 Contraseña Nueva</label>
+                        <div class="input-group">
+                            <input asp-for="ContrasenaNueva" class="form-control form-control-lg" type="password" 
+                                   id="newPass" placeholder="Ingresa tu nueva contraseña" />
+                            <button class="btn btn-outline-secondary" type="button" onclick="togglePass('newPass')">
+                                👁️
+                            </button>
+                        </div>
+                        <div id="strengthBar" class="progress mt-2" style="height:20px; display:none;">
+                            <div class="progress-bar" id="strength"></div>
+                        </div>
+                        <small class="form-text text-muted d-block mt-2">
+                            Mínimo 6 caracteres: números y letras
+                        </small>
+                        <span asp-validation-for="ContrasenaNueva" class="text-danger"></span>
+                    </div>
+
+                    <!-- Confirmar Contraseña -->
+                    <div class="form-group mb-4">
+                        <label asp-for="ConfirmarContrasena" class="form-label">✓ Confirmar Contraseña</label>
+                        <div class="input-group">
+                            <input asp-for="ConfirmarContrasena" class="form-control form-control-lg" type="password" 
+                                   id="confirmPass" placeholder="Confirma tu nueva contraseña" />
+                            <button class="btn btn-outline-secondary" type="button" onclick="togglePass('confirmPass')">
+                                👁️
+                            </button>
+                        </div>
+                        <span asp-validation-for="ConfirmarContrasena" class="text-danger"></span>
+                    </div>
+
+                    <!-- Botones -->
+                    <div class="d-flex gap-2">
+                        <a class="btn btn-secondary flex-grow-1" asp-action="Perfil">
+                            ← Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-primary flex-grow-1">
+                            💾 Actualizar Contraseña
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function togglePass(id) {
+            const input = document.getElementById(id);
+            input.type = input.type === 'password' ? 'text' : 'password';
+        }
+
+        document.getElementById('newPass')?.addEventListener('input', function() {
+            const pass = this.value;
+            let strength = 0;
+            const bar = document.getElementById('strength');
+            const container = document.getElementById('strengthBar');
+
+            container.style.display = 'block';
+
+            if (pass.length >= 6) strength += 25;
+            if (pass.length >= 8) strength += 25;
+            if (/[0-9]/.test(pass)) strength += 25;
+            if (/[a-z]/.test(pass)) strength += 25;
+
+            bar.style.width = strength + '%';
+            
+            if (strength < 50) {
+                bar.className = 'progress-bar bg-danger';
+            } else if (strength < 75) {
+                bar.className = 'progress-bar bg-warning';
+            } else {
+                bar.className = 'progress-bar bg-success';
+            }
+        });
+    </script>
+}
