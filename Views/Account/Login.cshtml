@@ -1,0 +1,96 @@
+@model Inventarios.Models.LoginViewModel
+@{
+    ViewData["Title"] = "Iniciar Sesión";
+    Layout = null; // Sin layout para login
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Inventarios</title>
+    
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); min-height: 100vh;">
+    
+    <div class="login-container">
+        <div class="login-card">
+            <!-- Logo / Header -->
+            <div class="text-center mb-4">
+                <h1 class="display-5 mb-2">⚙️</h1>
+                <h2 class="text-dark">Multiservicio A y O</h2>
+                <p class="text-muted mb-3">Sistema de Control de Inventario</p>
+            </div>
+
+            <!-- Mensajes de Error -->
+            @if (ViewData["ReturnUrl"] == null && !ViewData.ModelState.IsValid)
+            {
+                <div class="alert alert-danger" role="alert">
+                    <strong>⚠️ Error de inicio de sesión</strong>
+                    <ul class="mb-0">
+                        @foreach (var modelState in ViewData.ModelState.Values)
+                        {
+                            @foreach (var error in modelState.Errors)
+                            {
+                                <li>@error.ErrorMessage</li>
+                            }
+                        }
+                    </ul>
+                </div>
+            }
+
+            <!-- Formulario de Login -->
+            <form asp-action="Login" method="post" novalidate>
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+
+                <!-- Email Input -->
+                <div class="form-group mb-3">
+                    <label asp-for="Correo" class="form-label">📧 Correo Electrónico</label>
+                    <input asp-for="Correo" class="form-control form-control-lg" 
+                           placeholder="usuario@example.com" 
+                           type="email"
+                           required />
+                    <span asp-validation-for="Correo" class="text-danger"></span>
+                </div>
+
+                <!-- Password Input -->
+                <div class="form-group mb-4">
+                    <label asp-for="Contrasena" class="form-label">🔐 Contraseña</label>
+                    <input asp-for="Contrasena" class="form-control form-control-lg" 
+                           placeholder="••••••••" 
+                           type="password"
+                           required />
+                    <span asp-validation-for="Contrasena" class="text-danger"></span>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="btn btn-primary btn-lg btn-block w-100 mb-3">
+                    🔓 Iniciar Sesión
+                </button>
+
+                <!-- Info Text -->
+                <div class="alert alert-info alert-sm mt-3" role="alert">
+                    <small>
+                        <strong>Demo:</strong><br>
+                        Solicita credenciales al administrador del sistema.
+                    </small>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @section Scripts {
+        <partial name="_ValidationScriptsPartial" />
+    }
+</body>
+</html>

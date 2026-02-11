@@ -1,8 +1,298 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@{
+    ViewData["Title"] = "Inicio";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<!-- HERO SECTION -->
+<section class="hero-section mb-5">
+    <h1>🏢 Multiservicio A y O</h1>
+    <p>Sistema Inteligente de Control de Inventario para Talleres Automotrices</p>
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <p class="lead">Bienvenido, <strong>@User.Identity?.Name</strong></p>
+        <div class="mt-4">
+            <a asp-controller="Herramientas" asp-action="Index" class="btn btn-primary me-2">
+                🔧 Ver Herramientas
+            </a>
+            <a asp-controller="Prestamos" asp-action="Index" class="btn btn-primary">
+                📦 Mis Préstamos
+            </a>
+        </div>
+    }
+    else
+    {
+        <a asp-controller="Account" asp-action="Login" class="btn btn-primary btn-lg mt-3">
+            🔐 Iniciar Sesión
+        </a>
+    }
+</section>
+
+@if (User.Identity?.IsAuthenticated == true)
+{
+    <!-- BIENVENIDA PERSONALIZADA -->
+    <div class="welcome-banner mb-5">
+        <div class="welcome-content">
+            <h2>Bienvenido, <span class="text-accent">@User.Identity?.Name</span>! 👋</h2>
+            <p>Tu taller está listo para funcionar</p>
+        </div>
+        <div class="welcome-icon">⚙️</div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div class="container-fluid">
+        <h2 class="mb-4">📊 Dashboard</h2>
+        
+        <div class="grid-container">
+            <!-- Card: Herramientas -->
+            <div class="card card-hover">
+                <div class="card-header bg-gradient-info">
+                    <i class="fas fa-tools"></i> Herramientas
+                </div>
+                <div class="card-body text-center">
+                    <h3 class="card-title text-primary display-6">🔧</h3>
+                    <p class="card-text">Gestiona tu inventario de herramientas y equipos</p>
+                    <div class="d-grid gap-2">
+                        <a asp-controller="Herramientas" asp-action="Index" class="btn btn-primary btn-sm">
+                            📋 Ver Inventario
+                        </a>
+                    </div>
+                </div>
+                <div class="card-footer bg-light">
+                    <small class="text-muted">Control total de tu taller</small>
+                </div>
+            </div>
+
+            <!-- Card: Préstamos -->
+            <div class="card card-hover">
+                <div class="card-header bg-gradient-warning">
+                    <i class="fas fa-exchange-alt"></i> Préstamos
+                </div>
+                <div class="card-body text-center">
+                    <h3 class="card-title text-warning display-6">📦</h3>
+                    <p class="card-text">Solicita y controla los préstamos de herramientas</p>
+                    <div class="d-grid gap-2">
+                        <a asp-controller="Prestamos" asp-action="Index" class="btn btn-primary btn-sm">
+                            📊 Ver Préstamos
+                        </a>
+                        <a asp-controller="Prestamos" asp-action="Crear" class="btn btn-success btn-sm">
+                            ➕ Nuevo Préstamo
+                        </a>
+                    </div>
+                </div>
+                <div class="card-footer bg-light">
+                    <small class="text-muted">Rastreo completo de disponibilidad</small>
+                </div>
+            </div>
+
+            <!-- Card: Mi Perfil -->
+            <div class="card card-hover">
+                <div class="card-header bg-gradient-accent">
+                    <i class="fas fa-user"></i> Mi Perfil
+                </div>
+                <div class="card-body text-center">
+                    <h3 class="card-title display-6">👤</h3>
+                    <p class="card-text">Visualiza tu perfil y estadísticas</p>
+                    <div class="d-grid gap-2">
+                        <a asp-controller="Perfil" asp-action="MiPerfil" class="btn btn-primary btn-sm">
+                            📊 Ver Perfil
+                        </a>
+                    </div>
+                </div>
+                <div class="card-footer bg-light">
+                    <small class="text-muted">Tu información y actividad</small>
+                </div>
+            </div>
+
+            @if (User.IsInRole("Admin"))
+            {
+                <!-- Card: Usuarios (Admin) -->
+                <div class="card card-hover">
+                    <div class="card-header bg-gradient-danger">
+                        <i class="fas fa-users"></i> Usuarios
+                    </div>
+                    <div class="card-body text-center">
+                        <h3 class="card-title text-danger display-6">👥</h3>
+                        <p class="card-text">Administra usuarios y permisos del sistema</p>
+                        <div class="d-grid gap-2">
+                            <a asp-controller="Usuarios" asp-action="Index" class="btn btn-danger btn-sm">
+                                👥 Gestionar Usuarios
+                            </a>
+                            <a asp-controller="Usuarios" asp-action="Crear" class="btn btn-success btn-sm">
+                                ➕ Crear Usuario
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-light">
+                        <small class="text-muted">Control de accesos y roles</small>
+                    </div>
+                </div>
+
+                <!-- Card: Crear Herramienta (Admin) -->
+                <div class="card card-hover">
+                    <div class="card-header bg-gradient-success">
+                        <i class="fas fa-plus"></i> Nueva Herramienta
+                    </div>
+                    <div class="card-body text-center">
+                        <h3 class="card-title text-success display-6">➕</h3>
+                        <p class="card-text">Registra nuevas herramientas en el inventario</p>
+                        <div class="d-grid gap-2">
+                            <a asp-controller="Herramientas" asp-action="Crear" class="btn btn-success btn-sm">
+                                🔧 Crear Herramienta
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-light">
+                        <small class="text-muted">Expande tu inventario</small>
+                    </div>
+                </div>
+
+                <!-- Card: Reportes (Admin) -->
+                <div class="card card-hover">
+                    <div class="card-header bg-gradient-info">
+                        <i class="fas fa-chart-bar"></i> Reportes
+                    </div>
+                    <div class="card-body text-center">
+                        <h3 class="card-title text-info display-6">📊</h3>
+                        <p class="card-text">Visualiza estadísticas y reportes del sistema</p>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-info btn-sm" disabled>
+                                📈 Próximamente
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-light">
+                        <small class="text-muted">Análisis de inventario</small>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+}
+else
+{
+    <!-- INFORMACIÓN PÚBLICA -->
+    <section class="py-5">
+        <h2 class="text-center mb-5">Sistema de Control de Inventario</h2>
+        <p class="text-center text-muted mb-5">Solución integral para gestionar herramientas y préstamos en tu taller automotriz</p>
+        
+        <div class="grid-container">
+            <div class="feature-box">
+                <div class="feature-box-icon">📦</div>
+                <h3>Gestión Completa</h3>
+                <p>Control total de inventario de herramientas.</p>
+            </div>
+            <div class="feature-box">
+                <div class="feature-box-icon">📋</div>
+                <h3>Registro de Préstamos</h3>
+                <p>Solicita y controla devoluciones fácilmente.</p>
+            </div>
+            <div class="feature-box">
+                <div class="feature-box-icon">📊</div>
+                <h3>Trazabilidad</h3>
+                <p>Visualiza el estado de cada herramienta.</p>
+            </div>
+            <div class="feature-box">
+                <div class="feature-box-icon">🔐</div>
+                <h3>Acceso Seguro</h3>
+                <p>Autenticación por usuario y roles.</p>
+            </div>
+            <div class="feature-box">
+                <div class="feature-box-icon">⚡</div>
+                <h3>Búsqueda Rápida</h3>
+                <p>Encuentra herramientas al instante.</p>
+            </div>
+            <div class="feature-box">
+                <div class="feature-box-icon">📱</div>
+                <h3>Interfaz Clara</h3>
+                <p>Diseño intuitivo y fácil de usar.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="bg-light p-5 rounded-lg mt-5 text-center">
+        <h2>Inicia sesión para acceder</h2>
+        <p class="lead mb-4">Administra tu inventario de forma profesional y organizada.</p>
+        <a asp-controller="Account" asp-action="Login" class="btn btn-primary btn-lg">
+            🔐 Iniciar Sesión
+        </a>
+    </section>
+}
+
+<style>
+.welcome-banner {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    color: white;
+    padding: 40px;
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+}
+
+.welcome-content h2 {
+    margin: 0;
+    font-size: 2rem;
+    color: #ffffff;
+    border: none;
+    font-weight: 700;
+}
+
+.welcome-content p {
+    margin: 10px 0 0 0;
+    font-size: 1.1rem;
+    color: #f0f0f0;
+    font-weight: 500;
+}
+
+.text-accent {
+    color: #f39c12;
+}
+
+.welcome-icon {
+    font-size: 4rem;
+    opacity: 0.2;
+}
+
+.card-hover {
+    transition: all 0.3s ease;
+}
+
+.card-hover:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+.bg-gradient-info {
+    background: linear-gradient(135deg, #3498db, #2980b9) !important;
+    color: white !important;
+}
+
+.bg-gradient-warning {
+    background: linear-gradient(135deg, #f39c12, #e67e22) !important;
+    color: white !important;
+}
+
+.bg-gradient-success {
+    background: linear-gradient(135deg, #27ae60, #229954) !important;
+    color: white !important;
+}
+
+.bg-gradient-danger {
+    background: linear-gradient(135deg, #e74c3c, #c0392b) !important;
+    color: white !important;
+}
+
+.bg-gradient-accent {
+    background: linear-gradient(135deg, #f39c12, #e67e22) !important;
+    color: white !important;
+}
+
+.card .card-header {
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.card-footer {
+    border-top: 1px solid #dee2e6;
+}
+</style>

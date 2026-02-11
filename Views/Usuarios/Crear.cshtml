@@ -1,0 +1,208 @@
+@model Inventarios.Models.UsuarioCrearViewModel
+@{
+    ViewData["Title"] = "Crear Nuevo Usuario";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <!-- HEADER -->
+        <div class="mb-4">
+            <h1>➕ Crear Nuevo Usuario</h1>
+            <p class="text-muted">Registra un nuevo usuario en el sistema</p>
+        </div>
+
+        <!-- FORMULARIO -->
+        <div class="form-container">
+            <!-- Alerta de Información -->
+            <div class="alert alert-info" role="alert">
+                <h6 class="alert-heading">ℹ️ Información:</h6>
+                <ul class="mb-0">
+                    <li>La contraseña debe tener mínimo 6 caracteres, incluyendo números y letras minúsculas</li>
+                    <li>El correo será usado como nombre de usuario</li>
+                    <li>Los roles definen los permisos en el sistema</li>
+                </ul>
+            </div>
+
+            <form asp-action="Crear" method="post" novalidate>
+                <!-- Validación General -->
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <strong>⚠️ Error en el formulario:</strong>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+
+                <!-- SECCIÓN: INFORMACIÓN BÁSICA -->
+                <fieldset class="mb-4 p-3 border rounded bg-light">
+                    <legend class="mb-3">📝 Información Básica</legend>
+
+                    <!-- Correo -->
+                    <div class="form-group mb-3">
+                        <label asp-for="Correo" class="form-label">📧 Correo Electrónico</label>
+                        <input asp-for="Correo" class="form-control form-control-lg" 
+                               type="email"
+                               placeholder="usuario@example.com" 
+                               required />
+                        <small class="form-text text-muted">Se usará como nombre de usuario</small>
+                        <span asp-validation-for="Correo" class="text-danger"></span>
+                    </div>
+                </fieldset>
+
+                <!-- SECCIÓN: SEGURIDAD -->
+                <fieldset class="mb-4 p-3 border rounded bg-light">
+                    <legend class="mb-3">🔐 Seguridad</legend>
+
+                    <!-- Contraseña -->
+                    <div class="form-group mb-3">
+                        <label asp-for="Contrasena" class="form-label">Contraseña</label>
+                        <div class="input-group">
+                            <input asp-for="Contrasena" class="form-control form-control-lg" 
+                                   type="password" id="passwordInput"
+                                   placeholder="••••••••" 
+                                   required />
+                            <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                👁️ Ver
+                            </button>
+                        </div>
+                        <small class="form-text text-muted">
+                            Mínimo 6 caracteres: números, letras minúsculas
+                        </small>
+                        <span asp-validation-for="Contrasena" class="text-danger"></span>
+                        <div id="passwordStrength" class="mt-2">
+                            <small>Fortaleza:</small>
+                            <div class="progress" style="height: 20px;">
+                                <div id="strengthBar" class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Confirmar Contraseña -->
+                    <div class="form-group mb-3">
+                        <label asp-for="ConfirmarContrasena" class="form-label">Confirmar Contraseña</label>
+                        <input asp-for="ConfirmarContrasena" class="form-control form-control-lg" 
+                               type="password"
+                               placeholder="••••••••" 
+                               required />
+                        <span asp-validation-for="ConfirmarContrasena" class="text-danger"></span>
+                    </div>
+                </fieldset>
+
+                <!-- SECCIÓN: ROLES -->
+                <fieldset class="mb-4 p-3 border rounded bg-light">
+                    <legend class="mb-3">🔑 Asignar Rol</legend>
+
+                    @if (ViewBag.Roles != null)
+                    {
+                        <div class="form-group mb-3">
+                            <label asp-for="Rol" class="form-label">Rol del Usuario</label>
+                            <select asp-for="Rol" asp-items="new SelectList(ViewBag.Roles)" class="form-select form-select-lg" required>
+                                <option value="">-- Selecciona un rol --</option>
+                            </select>
+                            <small class="form-text text-muted">Determina los permisos del usuario</small>
+                            <span asp-validation-for="Rol" class="text-danger"></span>
+                        </div>
+
+                        <!-- Descripción de Roles -->
+                        <div class="alert alert-info" role="alert">
+                            <strong>Información sobre Roles:</strong>
+                            <div id="roleDescription" class="mt-2">
+                                <em class="text-muted">Selecciona un rol para ver su descripción</em>
+                            </div>
+                        </div>
+                    }
+                </fieldset>
+
+                <!-- CONFIRMACIÓN -->
+                <fieldset class="mb-4 p-3 border rounded bg-light">
+                    <legend class="mb-3">✓ Confirmación</legend>
+
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="acceptTerms" required>
+                        <label class="form-check-label" for="acceptTerms">
+                            Confirmo que los datos ingresados son correctos
+                        </label>
+                    </div>
+                </fieldset>
+
+                <!-- BOTONES DE ACCIÓN -->
+                <div class="d-flex gap-2 justify-content-between">
+                    <a asp-action="Index" class="btn btn-secondary btn-lg">
+                        ← Volver al Listado
+                    </a>
+                    <button type="submit" class="btn btn-success btn-lg">
+                        💾 Crear Usuario
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Toggle password visibility
+        document.getElementById('togglePassword')?.addEventListener('click', function() {
+            const input = document.getElementById('passwordInput');
+            const button = this;
+            if (input.type === 'password') {
+                input.type = 'text';
+                button.textContent = '🙈 Ocultar';
+            } else {
+                input.type = 'password';
+                button.textContent = '👁️ Ver';
+            }
+        });
+
+        // Validador de fortaleza de contraseña
+        document.getElementById('Contrasena')?.addEventListener('input', function() {
+            const password = this.value;
+            let strength = 0;
+            const strengthBar = document.getElementById('strengthBar');
+
+            // Longitud
+            if (password.length >= 6) strength += 25;
+            if (password.length >= 8) strength += 25;
+
+            // Contiene números
+            if (/[0-9]/.test(password)) strength += 25;
+
+            // Contiene letras minúsculas
+            if (/[a-z]/.test(password)) strength += 25;
+
+            // Actualizar barra
+            strengthBar.style.width = strength + '%';
+            
+            if (strength < 50) {
+                strengthBar.className = 'progress-bar bg-danger';
+            } else if (strength < 75) {
+                strengthBar.className = 'progress-bar bg-warning';
+            } else {
+                strengthBar.className = 'progress-bar bg-success';
+            }
+        });
+
+        // Descripción de rol
+        document.getElementById('Rol')?.addEventListener('change', function() {
+            const rol = this.value;
+            const description = document.getElementById('roleDescription');
+
+            const roles = {
+                'Admin': '<strong>🔴 Administrador:</strong><br>Acceso total al sistema. Puede crear, editar y eliminar herramientas, gestionar usuarios y confirmar devoluciones.',
+                'Usuario': '<strong>🟢 Usuario Regular:</strong><br>Acceso limitado. Puede ver inventario, solicitar préstamos y solicitar devoluciones.'
+            };
+
+            description.innerHTML = roles[rol] || '<em class="text-muted">Selecciona un rol para ver su descripción</em>';
+        });
+
+        // Validar que las contraseñas coincidan
+        document.querySelector('form')?.addEventListener('submit', function(e) {
+            const password = document.getElementById('Contrasena').value;
+            const confirm = document.getElementById('ConfirmarContrasena').value;
+
+            if (password !== confirm) {
+                e.preventDefault();
+                alert('Las contraseñas no coinciden');
+                return false;
+            }
+        });
+    </script>
+}

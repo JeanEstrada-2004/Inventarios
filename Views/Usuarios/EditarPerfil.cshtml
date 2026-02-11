@@ -1,0 +1,30 @@
+@model Inventarios.Models.PerfilEditarViewModel
+@{
+    ViewData["Title"] = "Editar perfil";
+}
+
+<h1>Editar perfil</h1>
+
+<form asp-action="GuardarPerfil" method="post">
+    <input type="hidden" asp-for="Id" />
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="mb-3">
+        <label asp-for="UserName" class="form-label">Usuario</label>
+        <input asp-for="UserName" class="form-control" />
+        <span asp-validation-for="UserName" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Correo" class="form-label">Correo</label>
+        <input asp-for="Correo" class="form-control" />
+        <span asp-validation-for="Correo" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-success">Guardar cambios</button>
+    <a class="btn btn-secondary" asp-action="Perfil">Cancelar</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,50 +1,187 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="es">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Inventarios</title>
-    <script type="importmap"></script>
+    <title>@ViewData["Title"] - Inventarios | Multiservicio A y O</title>
+    
+    <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    
+    <!-- Custom CSS -->
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="~/favicon.ico" />
+    
+    <!-- Styles -->
     <link rel="stylesheet" href="~/Inventarios.styles.css" asp-append-version="true" />
 </head>
 <body>
+    <!-- NAVBAR -->
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Inventarios</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                    Multiservicio A y O
+                </a>
+                
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
+                        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+                
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto">
+                        <!-- Menú Inicio (Visible para todos) -->
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">
+                                🏠 Inicio
+                            </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
+
+                        <!-- Menú Autenticado (Usuario y Admin) -->
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <!-- Herramientas (Usuario + Admin) -->
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-controller="Herramientas" asp-action="Index">
+                                    🔧 Herramientas
+                                </a>
+                            </li>
+
+                            <!-- Préstamos (Usuario + Admin) -->
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-controller="Prestamos" asp-action="Index">
+                                    📦 Préstamos
+                                </a>
+                            </li>
+
+                            <!-- Menú Admin (Solo Admin) -->
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-area="" asp-controller="Usuarios" asp-action="Index">
+                                        👥 Usuarios
+                                    </a>
+                                </li>
+                            }
+
+                            <!-- User Menu -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" 
+                                   data-bs-toggle="dropdown" aria-expanded="false">
+                                    👤 @User.Identity?.Name
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                    @if (User.IsInRole("Admin"))
+                                    {
+                                        <li>
+                                            <span class="dropdown-item-text">
+                                                <span class="badge badge-danger">Admin</span>
+                                            </span>
+                                        </li>
+                                        <li><hr class="dropdown-divider"></li>
+                                    }
+                                    <li>
+                                        <a class="dropdown-item" asp-area="" asp-controller="Usuarios" asp-action="Perfil">
+                                            👤 Mi Perfil
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                                            <button type="submit" class="dropdown-item">
+                                                🚪 Cerrar sesión
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-controller="Account" asp-action="Login">
+                                    🔐 Iniciar Sesión
+                                </a>
+                            </li>
+                        }
                     </ul>
                 </div>
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - Inventarios - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+    <!-- MAIN CONTENT -->
+    <main class="py-4">
+        <div class="container-fluid">
+            <!-- Breadcrumb -->
+            @{
+                var breadcrumbs = ViewData["Breadcrumbs"] as List<(string text, string? url)>;
+            }
+            @if (breadcrumbs != null)
+            {
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Inicio</a></li>
+                        @foreach (var breadcrumb in breadcrumbs)
+                        {
+                            @if (breadcrumb.url != null)
+                            {
+                                <li class="breadcrumb-item"><a href="@breadcrumb.url">@breadcrumb.text</a></li>
+                            }
+                            else
+                            {
+                                <li class="breadcrumb-item active">@breadcrumb.text</li>
+                            }
+                        }
+                    </ol>
+                </nav>
+            }
+
+            @if (TempData["Mensaje"] != null)
+            {
+                <div class="alert alert-success">@TempData["Mensaje"]</div>
+            }
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger">@TempData["Error"]</div>
+            }
+
+            @RenderBody()
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="mt-5">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-4 text-center">
+                    <h5>Multiservicio A y O</h5>
+                    <p>Taller automotriz especializado en diagnóstico y reparación.</p>
+                </div>
+                <div class="col-md-4 text-center">
+                    <h5>Sistema de Inventario</h5>
+                    <p>Control y seguimiento de herramientas y equipos.</p>
+                </div>
+                <div class="col-md-4 text-center">
+                    <h5>Contacto</h5>
+                    <p>&copy; 2026 - Todos los derechos reservados</p>
+                </div>
+            </div>
         </div>
     </footer>
+
+    <!-- jQuery -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    
+    <!-- Bootstrap JS -->
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JS -->
     <script src="~/js/site.js" asp-append-version="true"></script>
+    
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

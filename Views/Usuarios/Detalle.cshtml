@@ -1,0 +1,38 @@
+@model Inventarios.Models.UsuarioRolViewModel
+@{
+    ViewData["Title"] = "Detalle de usuario";
+    var roles = ViewBag.Roles as string[] ?? new[] { "Admin", "Usuario" };
+}
+
+<h1>Detalle de usuario</h1>
+
+<table class="table table-bordered w-auto">
+    <tr>
+        <th>Id</th>
+        <td>@Model.Id</td>
+    </tr>
+    <tr>
+        <th>Correo</th>
+        <td>@Model.Correo</td>
+    </tr>
+    <tr>
+        <th>Roles actuales</th>
+        <td>@string.Join(", ", Model.Roles)</td>
+    </tr>
+</table>
+
+<h4>Cambiar rol</h4>
+<form asp-action="CambiarRol" method="post">
+    <input type="hidden" name="id" value="@Model.Id" />
+    <div class="mb-3">
+        <select class="form-select w-auto" name="rol">
+            @foreach (var rol in roles)
+            {
+                <option value="@rol" selected="@(Model.Roles.Contains(rol))">@rol</option>
+            }
+        </select>
+    </div>
+    <button class="btn btn-primary" type="submit">Actualizar rol</button>
+    <a class="btn btn-secondary" asp-action="Index">Volver</a>
+    <a class="btn btn-outline-danger" asp-action="Eliminar" asp-route-id="@Model.Id">Eliminar usuario</a>
+</form>

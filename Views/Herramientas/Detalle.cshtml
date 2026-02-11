@@ -1,0 +1,156 @@
+@model Inventarios.Models.Herramienta
+@{
+    ViewData["Title"] = "Detalle de Herramienta";
+    var porcentaje = (Model.CantidadTotal > 0) 
+        ? ((double)Model.CantidadDisponible / Model.CantidadTotal * 100) 
+        : 0;
+}
+
+<!-- HEADER -->
+<div class="mb-4">
+    <h1>🔧 @Model.Nombre</h1>
+    <p class="text-muted">@Model.Codigo</p>
+</div>
+
+<!-- INFORMACIÓN PRINCIPAL -->
+<div class="row mb-4">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <strong>📋 Información Básica</strong>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-6">
+                        <h6 class="text-muted">📦 Código</h6>
+                        <p class="h5">@Model.Codigo</p>
+                    </div>
+                    <div class="col-6">
+                        <h6 class="text-muted">🎯 Marca</h6>
+                        <p class="h5">@(Model.Marca ?? "N/A")</p>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-6">
+                        <h6 class="text-muted">📍 Estante</h6>
+                        <p class="h5"><span class="badge bg-light text-dark">@Model.Estante</span></p>
+                    </div>
+                </div>
+                @if (!string.IsNullOrEmpty(Model.Especificacion))
+                {
+                    <div class="mb-3">
+                        <h6 class="text-muted">⚙️ Especificación</h6>
+                        <p>@Model.Especificacion</p>
+                    </div>
+                }
+                @if (!string.IsNullOrEmpty(Model.Observaciones))
+                {
+                    <div class="mb-3">
+                        <h6 class="text-muted">📝 Observaciones</h6>
+                        <p>@Model.Observaciones</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- DISPONIBILIDAD -->
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <strong>📊 Disponibilidad</strong>
+            </div>
+            <div class="card-body text-center">
+                <div class="mb-4">
+                    <h2 class="text-primary">@Model.CantidadDisponible / @Model.CantidadTotal</h2>
+                    <p class="text-muted">Unidades disponibles / Total</p>
+                </div>
+                <div class="progress" style="height: 30px;">
+                    <div class="progress-bar bg-success" style="width: @(porcentaje)%;">
+                        @(Math.Round(porcentaje))%
+                    </div>
+                </div>
+                <small class="d-block mt-3 text-muted">
+                    En préstamo: @(Model.CantidadTotal - Model.CantidadDisponible) unidades
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ESTADO DE UNIDADES -->
+<div class="card mb-4">
+    <div class="card-header">
+        <strong>🔍 Estado de Unidades (@Model.Unidades.Count)</strong>
+    </div>
+    <div class="card-body">
+        @if (Model.Unidades?.Count > 0)
+        {
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+        <tr>
+            <th>Etiqueta</th>
+            <th>Estado</th>
+            <th>Observación</th>
+            @if (User.IsInRole("Admin"))
+            {
+                <th>Acciones</th>
+            }
+        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var unidad in Model.Unidades)
+                        {
+                            var estadoClase = unidad.Estado switch
+                            {
+                                Inventarios.Models.EstadoHerramientaUnidad.Disponible => "badge bg-success text-white",
+                                Inventarios.Models.EstadoHerramientaUnidad.Prestada => "badge bg-warning text-dark",
+                                Inventarios.Models.EstadoHerramientaUnidad.Danada => "badge bg-danger text-white",
+                                _ => "badge bg-secondary text-white"
+                            };
+                            var estadoIcon = unidad.Estado switch
+                            {
+                                Inventarios.Models.EstadoHerramientaUnidad.Disponible => "✅",
+                                Inventarios.Models.EstadoHerramientaUnidad.Prestada => "📦",
+                                Inventarios.Models.EstadoHerramientaUnidad.Danada => "⚠️",
+                                _ => "❓"
+                            };
+                            <tr>
+                                <td>@unidad.Etiqueta</td>
+                                <td><span class="@estadoClase">@estadoIcon @unidad.Estado</span></td>
+                                <td>@unidad.Observacion</td>
+                                @if (User.IsInRole("Admin"))
+                                {
+                                    <td>
+                                        <a class="btn btn-sm btn-outline-primary" asp-action="EditarUnidad" asp-route-id="@unidad.Id">Editar</a>
+                                    </td>
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <p class="text-muted mb-0">Sin unidades registradas</p>
+        }
+    </div>
+</div>
+
+<!-- BOTONES DE ACCIÓN -->
+<div class="d-flex gap-2">
+    <a class="btn btn-secondary" asp-action="Index">
+        ← Volver al Listado
+    </a>
+    @if (User.IsInRole("Admin"))
+    {
+        <a class="btn btn-outline-secondary" asp-action="Editar" asp-route-id="@Model.Id">
+            ✏️ Editar
+        </a>
+        <a class="btn btn-outline-danger" asp-action="Eliminar" asp-route-id="@Model.Id">
+            🗑️ Eliminar
+        </a>
+    }
+</div>

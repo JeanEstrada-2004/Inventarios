@@ -1,0 +1,232 @@
+@model IEnumerable<Inventarios.Models.Prestamo>
+@{
+    ViewData["Title"] = "Gestión de Préstamos";
+    var esAdmin = User.IsInRole("Admin");
+    var prestamos = Model?.ToList() ?? new List<Inventarios.Models.Prestamo>();
+}
+
+<!-- HEADER -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1>📦 Gestión de Préstamos</h1>
+        <p class="text-muted">Control de herramientas prestadas y devoluciones</p>
+    </div>
+    <a asp-action="Crear" class="btn btn-primary btn-lg">
+        ➕ Nuevo Préstamo
+    </a>
+</div>
+
+<!-- FILTROS -->
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="input-group">
+                    <span class="input-group-text">🔍</span>
+                    <input type="text" id="searchInput" class="form-control" 
+                           placeholder="Buscar por usuario o herramienta..." />
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="input-group">
+                    <span class="input-group-text">📊</span>
+                    <select id="statusFilter" class="form-select">
+                        <option value="">-- Todos los estados --</option>
+                        <option value="Activo">🟢 Activos</option>
+                        <option value="DevueltoPendiente">🟡 Pendiente de Devolución</option>
+                        <option value="Cerrado">⚫ Cerrados</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (prestamos.Count > 0)
+{
+    <!-- TABLA DE PRÉSTAMOS -->
+    <div class="table-responsive">
+        <table class="table table-hover" id="prestamosTable">
+            <thead>
+                <tr>
+                    <th>👤 Usuario</th>
+                    <th>📦 Herramienta(s)</th>
+                    <th>📅 Fecha Préstamo</th>
+                    <th>📊 Estado</th>
+                    <th>⚙️ Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var prestamo in prestamos)
+                {
+                    var badgeClase = prestamo.Estado == EstadoPrestamo.Activo ? "badge-activo" :
+                                     prestamo.Estado == EstadoPrestamo.DevueltoPendiente ? "badge-prestada" :
+                                     "badge-cerrado";
+                    var zonaLima = TimeZoneInfo.FindSystemTimeZoneById("SA Pacific Standard Time");
+                    var inicioLocal = TimeZoneInfo.ConvertTimeFromUtc(DateTime.SpecifyKind(prestamo.FechaPrestamo, DateTimeKind.Utc), zonaLima);
+                    DateTime? devolucionLocal = prestamo.FechaDevolucion.HasValue
+                        ? TimeZoneInfo.ConvertTimeFromUtc(DateTime.SpecifyKind(prestamo.FechaDevolucion.Value, DateTimeKind.Utc), zonaLima)
+                        : null;
+
+                    <tr data-estado="@prestamo.Estado">
+                        <td>
+                            <strong>@(prestamo.Usuario?.UserName ?? prestamo.Usuario?.Email ?? "Usuario desconocido")</strong>
+                            @if (esAdmin && prestamo.Usuario?.Id != null)
+                            {
+                                <br>
+                                <small class="text-muted">ID: @prestamo.Usuario.Id.Substring(0, 8)...</small>
+                            }
+                        </td>
+                        <td>
+                            @if (prestamo.Detalles?.Count > 0)
+                            {
+                                <ul class="mb-0 ps-3">
+                                    @foreach (var detalle in prestamo.Detalles)
+                                    {
+                                        <li>
+                                            <strong>@detalle.HerramientaUnidad?.Herramienta?.Nombre</strong>
+                                            <br>
+                                            <small class="text-muted">
+                                                Código: @detalle.HerramientaUnidad?.Herramienta?.Codigo
+                                            </small>
+                                        </li>
+                                    }
+                                </ul>
+                            }
+                            else
+                            {
+                                <em class="text-muted">Sin detalles</em>
+                            }
+                        </td>
+                        <td>
+                            <div>
+                                <small>
+                                    <strong>Inicio:</strong> @inicioLocal.ToString("dd/MM/yyyy HH:mm")
+                                </small>
+                                @if (prestamo.FechaDevolucion.HasValue)
+                                {
+                                    <br>
+                                    <small>
+                                        <strong>Devolución:</strong> @devolucionLocal?.ToString("dd/MM/yyyy HH:mm")
+                                    </small>
+                                }
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge @badgeClase">
+                                @if (prestamo.Estado == EstadoPrestamo.Activo)
+                                {
+                                    <span>🟢 Activo</span>
+                                }
+                                else if (prestamo.Estado == EstadoPrestamo.DevueltoPendiente)
+                                {
+                                    <span>🟡 Pendiente</span>
+                                }
+                                else
+                                {
+                                    <span>⚫ Cerrado</span>
+                                }
+                            </span>
+                        </td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                @if (prestamo.Estado == EstadoPrestamo.Activo)
+                                {
+                                    <form asp-action="SolicitarDevolucion" asp-route-id="@prestamo.Id" method="post" style="display: inline;">
+                                        <button type="submit" class="btn btn-sm btn-warning" 
+                                                onclick="return confirm('¿Confirmas la solicitud de devolución?')">
+                                            ↩️ Devolución
+                                        </button>
+                                    </form>
+                                }
+                                else if (prestamo.Estado == EstadoPrestamo.DevueltoPendiente && esAdmin)
+                                {
+                                    <a asp-action="ConfirmarDevolucion" asp-route-id="@prestamo.Id" class="btn btn-sm btn-success">
+                                        ✅ Confirmar
+                                    </a>
+                                }
+                                else
+                                {
+                                    <button type="button" class="btn btn-sm btn-secondary" disabled>
+                                        ✓ Completado
+                                    </button>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ESTADÍSTICAS -->
+    <div class="row mt-5">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h3 class="card-title text-info">
+                        @prestamos.Count(p => p.Estado == EstadoPrestamo.Activo)
+                    </h3>
+                    <p class="card-text">🟢 Préstamos Activos</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h3 class="card-title text-warning">
+                        @prestamos.Count(p => p.Estado == EstadoPrestamo.DevueltoPendiente)
+                    </h3>
+                    <p class="card-text">🟡 Pendientes de Devolución</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h3 class="card-title text-success">
+                        @prestamos.Count(p => p.Estado == EstadoPrestamo.Cerrado)
+                    </h3>
+                    <p class="card-text">⚫ Préstamos Cerrados</p>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="alert alert-info alert-lg text-center p-5" role="alert">
+        <h4>📭 No hay préstamos registrados</h4>
+        <p class="mb-0">
+            <a asp-action="Crear" class="alert-link">Crear el primer préstamo</a>
+        </p>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        // Búsqueda en tabla
+        document.getElementById('searchInput').addEventListener('keyup', function() {
+            const filter = this.value.toUpperCase();
+            const table = document.getElementById('prestamosTable');
+            const rows = table?.querySelectorAll('tbody tr') || [];
+
+            rows.forEach(row => {
+                const text = row.textContent.toUpperCase();
+                row.style.display = text.includes(filter) ? '' : 'none';
+            });
+        });
+
+        // Filtro por estado
+        document.getElementById('statusFilter').addEventListener('change', function() {
+            const filter = this.value;
+            const table = document.getElementById('prestamosTable');
+            const rows = table?.querySelectorAll('tbody tr') || [];
+
+            rows.forEach(row => {
+                const estado = row.getAttribute('data-estado');
+                row.style.display = filter === '' || estado === filter ? '' : 'none';
+            });
+        });
+    </script>
+}

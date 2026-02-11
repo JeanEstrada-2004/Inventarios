@@ -1,0 +1,145 @@
+@model Inventarios.Models.Herramienta
+@{
+    ViewData["Title"] = "Editar Herramienta";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <!-- HEADER -->
+        <div class="mb-4">
+            <h1>✏️ Editar Herramienta</h1>
+            <p class="text-muted">Actualiza los datos de la herramienta</p>
+        </div>
+
+        <!-- FORMULARIO -->
+        <div class="form-container">
+            <form asp-action="Editar" method="post" novalidate>
+                <!-- Validación General -->
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <strong>⚠️ Error en el formulario:</strong>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+
+                <!-- ID Hidden -->
+                <input asp-for="Id" type="hidden" />
+
+                <!-- SECCIÓN: INFORMACIÓN BÁSICA -->
+                <fieldset class="mb-4 p-3 border rounded bg-light">
+                    <legend class="mb-3">📝 Información Básica</legend>
+
+                    <!-- Código -->
+                    <div class="form-group mb-3">
+                        <label asp-for="Codigo" class="form-label">📦 Código</label>
+                        <input asp-for="Codigo" class="form-control" 
+                               placeholder="Ej: HERR-001" required />
+                        <span asp-validation-for="Codigo" class="text-danger"></span>
+                    </div>
+
+                    <!-- Nombre -->
+                    <div class="form-group mb-3">
+                        <label asp-for="Nombre" class="form-label">🏷️ Nombre</label>
+                        <input asp-for="Nombre" class="form-control" required />
+                        <span asp-validation-for="Nombre" class="text-danger"></span>
+                    </div>
+
+                    <!-- Marca -->
+                    <div class="form-group mb-3">
+                        <label asp-for="Marca" class="form-label">🎯 Marca</label>
+                        <input asp-for="Marca" class="form-control" />
+                        <span asp-validation-for="Marca" class="text-danger"></span>
+                    </div>
+                </fieldset>
+
+                <!-- SECCIÓN: UBICACIÓN Y CANTIDAD -->
+                <fieldset class="mb-4 p-3 border rounded bg-light">
+                    <legend class="mb-3">📍 Ubicación y Cantidad</legend>
+
+                    <!-- Estante -->
+                    <div class="form-group mb-3">
+                        <label asp-for="Estante" class="form-label">📍 Estante</label>
+                        <select asp-for="Estante" class="form-select" required>
+                            <option>Estante A</option>
+                            <option>Estante B</option>
+                            <option>Estante C</option>
+                            <option>Estante D</option>
+                            <option>Estante E</option>
+                            <option>Estante F</option>
+                        </select>
+                        <span asp-validation-for="Estante" class="text-danger"></span>
+                    </div>
+
+                    <!-- Cantidad Total -->
+                    <div class="form-group mb-3">
+                        <label asp-for="CantidadTotal" class="form-label">📊 Cantidad Total</label>
+                        <input asp-for="CantidadTotal" class="form-control" 
+                               type="number" min="0" required />
+                        <span asp-validation-for="CantidadTotal" class="text-danger"></span>
+                    </div>
+
+                    <!-- Cantidad Disponible -->
+                    <div class="form-group mb-3">
+                        <label asp-for="CantidadDisponible" class="form-label">✅ Cantidad Disponible</label>
+                        <input asp-for="CantidadDisponible" class="form-control" 
+                               type="number" min="0" required />
+                        <small class="form-text text-muted">Unidades sin préstamo activo</small>
+                        <span asp-validation-for="CantidadDisponible" class="text-danger"></span>
+                    </div>
+
+                    <!-- Estado Visual -->
+                    <div class="alert alert-info">
+                        <strong>📊 Estado:</strong>
+                        <div class="mt-2">
+                            <div class="progress" style="height: 25px;">
+                                @{
+                                    var porcentaje = (Model.CantidadTotal > 0) 
+                                        ? ((double)Model.CantidadDisponible / Model.CantidadTotal * 100) 
+                                        : 0;
+                                }
+                                <div class="progress-bar" role="progressbar" 
+                                     style="width: @(porcentaje)%;" 
+                                     aria-valuenow="@Model.CantidadDisponible" 
+                                     aria-valuemin="0" 
+                                     aria-valuemax="@Model.CantidadTotal">
+                                    @Model.CantidadDisponible / @Model.CantidadTotal
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <!-- SECCIÓN: ESPECIFICACIONES Y OBSERVACIONES -->
+                <fieldset class="mb-4 p-3 border rounded bg-light">
+                    <legend class="mb-3">📋 Especificaciones y Observaciones</legend>
+
+                    <!-- Especificación -->
+                    <div class="form-group mb-3">
+                        <label asp-for="Especificacion" class="form-label">⚙️ Especificación</label>
+                        <textarea asp-for="Especificacion" class="form-control" rows="3"></textarea>
+                        <span asp-validation-for="Especificacion" class="text-danger"></span>
+                    </div>
+
+                    <!-- Observaciones -->
+                    <div class="form-group mb-3">
+                        <label asp-for="Observaciones" class="form-label">📝 Observaciones</label>
+                        <textarea asp-for="Observaciones" class="form-control" rows="3"></textarea>
+                        <span asp-validation-for="Observaciones" class="text-danger"></span>
+                    </div>
+                </fieldset>
+
+                <!-- BOTONES DE ACCIÓN -->
+                <div class="d-flex gap-2 justify-content-between">
+                    <a asp-action="Index" class="btn btn-secondary btn-lg">
+                        ← Volver al Listado
+                    </a>
+                    <button type="submit" class="btn btn-warning btn-lg">
+                        💾 Guardar Cambios
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

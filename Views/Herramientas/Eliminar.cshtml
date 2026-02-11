@@ -1,0 +1,148 @@
+@model Inventarios.Models.Herramienta
+@{
+    ViewData["Title"] = "Eliminar Herramienta";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <!-- HEADER -->
+        <div class="mb-4">
+            <h1>🗑️ Eliminar Herramienta</h1>
+            <p class="text-muted text-danger">Esta acción no se puede deshacer</p>
+        </div>
+
+        <!-- ALERTA DE PELIGRO -->
+        <div class="alert alert-danger alert-lg mb-4" role="alert">
+            <h4 class="alert-heading">⚠️ Advertencia</h4>
+            <p>Estás a punto de eliminar la siguiente herramienta. Esta acción <strong>no se puede deshacer</strong>.</p>
+            <hr>
+            <p class="mb-0">Asegúrate de que no hay préstamos activos de esta herramienta antes de eliminarla.</p>
+        </div>
+
+        <!-- DETALLES DE LA HERRAMIENTA -->
+        <div class="card mb-4">
+            <div class="card-header bg-danger text-white">
+                <strong>📦 Detalles de la Herramienta</strong>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <strong>Código:</strong>
+                        <p><code>@Model.Codigo</code></p>
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Nombre:</strong>
+                        <p>@Model.Nombre</p>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <strong>Marca:</strong>
+                        <p>@(Model.Marca ?? "No especificada")</p>
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Estante:</strong>
+                        <p><span class="badge badge-info">@Model.Estante</span></p>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <strong>Cantidad Total:</strong>
+                        <p><span class="badge badge-primary">@Model.CantidadTotal</span></p>
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Disponibles:</strong>
+                        <p><span class="badge badge-success">@Model.CantidadDisponible</span></p>
+                    </div>
+                </div>
+
+                @if (!string.IsNullOrEmpty(Model.Especificacion))
+                {
+                    <div class="mb-3">
+                        <strong>Especificación:</strong>
+                        <p>@Model.Especificacion</p>
+                    </div>
+                }
+
+                @if (!string.IsNullOrEmpty(Model.Observaciones))
+                {
+                    <div class="mb-3">
+                        <strong>Observaciones:</strong>
+                        <p>@Model.Observaciones</p>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- CHECKLIST DE CONFIRMACIÓN -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <strong>✓ Confirmación Requerida</strong>
+            </div>
+            <div class="card-body">
+                <form id="deleteForm" asp-action="Eliminar" method="post" onsubmit="return validateDelete()">
+                    <input type="hidden" asp-for="Id" />
+
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="confirm1" required>
+                        <label class="form-check-label" for="confirm1">
+                            Confirmo que he revisado la información de la herramienta
+                        </label>
+                    </div>
+
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="confirm2" required>
+                        <label class="form-check-label" for="confirm2">
+                            Confirmo que entiendo que esta acción <strong>NO SE PUEDE DESHACER</strong>
+                        </label>
+                    </div>
+
+                    <div class="form-check mb-4">
+                        <input class="form-check-input" type="checkbox" id="confirm3" required>
+                        <label class="form-check-label" for="confirm3">
+                            Confirmo que no hay préstamos activos de esta herramienta
+                        </label>
+                    </div>
+
+                    <!-- BOTONES DE ACCIÓN -->
+                    <div class="d-flex gap-2 justify-content-between">
+                        <a asp-action="Index" class="btn btn-secondary btn-lg">
+                            ← Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-danger btn-lg" id="deleteBtn" disabled>
+                            🗑️ Eliminar Herramienta Permanentemente
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- INFORMACIÓN ADICIONAL -->
+        <div class="alert alert-warning" role="alert">
+            <h6 class="alert-heading">📝 Nota Importante:</h6>
+            <p>Si cambias de opinión, aún puedes <a asp-action="Index" class="alert-link">volver al listado</a> para mantener esta herramienta en el sistema.</p>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Habilitar botón de eliminar solo si todas las confirmaciones están hechas
+        document.querySelectorAll('#confirm1, #confirm2, #confirm3').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const deleteBtn = document.getElementById('deleteBtn');
+                const allChecked = document.getElementById('confirm1').checked &&
+                                   document.getElementById('confirm2').checked &&
+                                   document.getElementById('confirm3').checked;
+                deleteBtn.disabled = !allChecked;
+            });
+        });
+
+        // Validación adicional antes de eliminar
+        function validateDelete() {
+            return confirm('⚠️ ÚLTIMA CONFIRMACIÓN:\n\n¿Estás COMPLETAMENTE SEGURO de que deseas eliminar esta herramienta?\n\nEsta acción es permanente y no se puede deshacer.');
+        }
+    </script>
+}

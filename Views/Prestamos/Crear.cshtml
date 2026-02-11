@@ -1,0 +1,30 @@
+@model Inventarios.Models.PrestamoCrearViewModel
+@{
+    ViewData["Title"] = "Registrar préstamo";
+}
+
+<h1>Registrar préstamo</h1>
+
+@if (Model.HerramientasDisponibles.Count == 0)
+{
+    <div class="alert alert-info">No hay herramientas disponibles para prestar.</div>
+}
+else
+{
+    <form asp-action="Crear" method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <div class="mb-3">
+            <label asp-for="HerramientaId" class="form-label">Herramienta</label>
+            <select asp-for="HerramientaId" asp-items="Model.HerramientasDisponibles" class="form-select"></select>
+            <span asp-validation-for="HerramientaId" class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Guardar préstamo</button>
+        <a class="btn btn-secondary" asp-action="Index">Volver</a>
+    </form>
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

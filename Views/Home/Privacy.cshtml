@@ -1,6 +1,145 @@
-﻿@{
-    ViewData["Title"] = "Privacy Policy";
+@{
+    ViewData["Title"] = "Privacidad";
 }
-<h1>@ViewData["Title"]</h1>
 
-<p>Use this page to detail your site's privacy policy.</p>
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <h1>🔒 Política de Privacidad</h1>
+        <p class="text-muted">Información sobre cómo protegemos tus datos</p>
+
+        <div class="card mt-4">
+            <div class="card-body">
+                <!-- Introducción -->
+                <section class="mb-4">
+                    <h3>📋 Introducción</h3>
+                    <p>
+                        Este sistema de inventario de Multiservicio A y O está comprometido con proteger la privacidad y 
+                        seguridad de los datos de sus usuarios. Esta política explica cómo recopilamos, utilizamos y protegemos 
+                        la información personal.
+                    </p>
+                </section>
+
+                <!-- Datos Recopilados -->
+                <section class="mb-4">
+                    <h3>📊 Datos Recopilados</h3>
+                    <p>El sistema recopila los siguientes datos:</p>
+                    <ul>
+                        <li><strong>Información de Autenticación:</strong> Correo electrónico, contraseña encriptada</li>
+                        <li><strong>Información de Actividad:</strong> Historial de préstamos y devoluciones</li>
+                        <li><strong>Información de Inventario:</strong> Herramientas utilizadas y estados</li>
+                        <li><strong>Información Técnica:</strong> Dirección IP, tipo de navegador (si aplica)</li>
+                    </ul>
+                </section>
+
+                <!-- Uso de Datos -->
+                <section class="mb-4">
+                    <h3>🎯 Uso de Datos</h3>
+                    <p>Utilizamos los datos recopilados para:</p>
+                    <ul>
+                        <li>Facilitar la gestión del inventario de herramientas</li>
+                        <li>Rastrear préstamos y devoluciones</li>
+                        <li>Mejorar la seguridad y eficiencia del sistema</li>
+                        <li>Generar reportes y análisis de uso</li>
+                        <li>Cumplir con obligaciones legales</li>
+                    </ul>
+                </section>
+
+                <!-- Protección de Datos -->
+                <section class="mb-4">
+                    <h3>🔐 Protección de Datos</h3>
+                    <p>Implementamos las siguientes medidas de seguridad:</p>
+                    <ul>
+                        <li><strong>Encriptación:</strong> Las contraseñas se encriptan usando algoritmos seguros</li>
+                        <li><strong>Autenticación:</strong> Sistema de autenticación robusto basado en roles</li>
+                        <li><strong>Acceso Controlado:</strong> Solo personal autorizado puede acceder a datos sensibles</li>
+                        <li><strong>Auditoría:</strong> Registro de accesos y cambios en el sistema</li>
+                        <li><strong>Respaldo:</strong> Copias de seguridad regulares</li>
+                    </ul>
+                </section>
+
+                <!-- Compartición de Datos -->
+                <section class="mb-4">
+                    <h3>🤝 Compartición de Datos</h3>
+                    <p>
+                        No compartimos tus datos personales con terceros, excepto cuando:
+                    </p>
+                    <ul>
+                        <li>Sea necesario para cumplir con la ley</li>
+                        <li>Lo autorices explícitamente</li>
+                        <li>Sea esencial para la operación del sistema</li>
+                    </ul>
+                </section>
+
+                <!-- Derechos del Usuario -->
+                <section class="mb-4">
+                    <h3>✋ Derechos del Usuario</h3>
+                    <p>Como usuario, tienes derecho a:</p>
+                    <ul>
+                        <li>Acceder a tus datos personales</li>
+                        <li>Solicitar correcciones de datos incorrectos</li>
+                        <li>Solicitar la eliminación de tus datos (si aplica)</li>
+                        <li>Conocer cómo se usan tus datos</li>
+                        <li>Presentar reclamos sobre el uso de tus datos</li>
+                    </ul>
+                </section>
+
+                <!-- Retención de Datos -->
+                <section class="mb-4">
+                    <h3>⏱️ Retención de Datos</h3>
+                    <p>
+                        Los datos se retienen durante el tiempo necesario para:
+                    </p>
+                    <ul>
+                        <li>Mantener tu cuenta activa</li>
+                        <li>Proporcionar los servicios de inventario</li>
+                        <li>Cumplir con obligaciones legales</li>
+                        <li>Resolver disputas (normalmente 3-7 años)</li>
+                    </ul>
+                </section>
+
+                <!-- Cookies y Rastreo -->
+                <section class="mb-4">
+                    <h3>🍪 Cookies y Rastreo</h3>
+                    <p>
+                        Este sistema puede utilizar cookies para:
+                    </p>
+                    <ul>
+                        <li>Mantener tu sesión activa</li>
+                        <li>Recordar tus preferencias</li>
+                        <li>Mejorar la experiencia del usuario</li>
+                    </ul>
+                </section>
+
+                <!-- Cambios en la Política -->
+                <section class="mb-4">
+                    <h3>📢 Cambios en esta Política</h3>
+                    <p>
+                        Nos reservamos el derecho de actualizar esta política de privacidad. Los cambios serán notificados 
+                        a través del sistema o por correo electrónico.
+                    </p>
+                </section>
+
+                <!-- Contacto -->
+                <section class="alert alert-info">
+                    <h3>📧 Contacto</h3>
+                    <p class="mb-0">
+                        Si tienes preguntas sobre esta política de privacidad o sobre cómo manejas tus datos, 
+                        contacta al administrador del sistema.
+                    </p>
+                </section>
+
+                <!-- Fecha de Última Actualización -->
+                <div class="text-muted small text-center mt-4">
+                    <p>Última actualización: @DateTime.Now.ToString("dd/MM/yyyy")</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Botón Volver -->
+        <div class="mt-4">
+            <a asp-controller="Home" asp-action="Index" class="btn btn-secondary btn-lg">
+                ← Volver al Inicio
+            </a>
+        </div>
+    </div>
+</div>

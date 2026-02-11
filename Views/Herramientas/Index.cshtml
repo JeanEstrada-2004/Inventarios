@@ -1,0 +1,146 @@
+@model IEnumerable<Inventarios.Models.Herramienta>
+@{
+    ViewData["Title"] = "Inventario";
+    var esAdmin = User.IsInRole("Admin");
+    var herramientas = Model?.ToList() ?? new List<Inventarios.Models.Herramienta>();
+}
+
+<!-- HEADER -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1>🔧 Inventario de Herramientas</h1>
+        <p class="text-muted">Control de herramientas disponibles</p>
+    </div>
+    @if (esAdmin)
+    {
+        <a class="btn btn-primary btn-lg" asp-action="Crear">
+            ➕ Nueva Herramienta
+        </a>
+    }
+</div>
+
+<!-- BÚSQUEDA -->
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="input-group">
+            <span class="input-group-text">🔍</span>
+            <input type="text" id="searchInput" class="form-control" 
+                   placeholder="Buscar por nombre, código o marca..." />
+        </div>
+    </div>
+</div>
+
+@if (herramientas.Count > 0)
+{
+    <!-- TABLA RESPONSIVE -->
+    <div class="table-responsive">
+        <table class="table table-hover" id="herramientasTable">
+            <thead>
+                <tr>
+                    <th>📦 Código</th>
+                    <th>🏷️ Nombre</th>
+                    <th>🎯 Marca</th>
+                    <th>📍 Estante</th>
+                    <th>📊 Disponibilidad</th>
+                    <th>⚙️ Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in herramientas)
+                {
+                    var porcentaje = (item.CantidadTotal > 0) 
+                        ? ((double)item.CantidadDisponible / item.CantidadTotal * 100) 
+                        : 0;
+                    var badgeClass = porcentaje >= 75 ? "bg-success" :
+                                    porcentaje >= 50 ? "bg-warning" :
+                                    porcentaje > 0 ? "bg-danger" : "bg-secondary";
+
+                    <tr>
+                        <td><strong>@item.Codigo</strong></td>
+                        <td>@item.Nombre</td>
+                        <td>@item.Marca</td>
+                        <td><span class="badge bg-light text-dark">@item.Estante</span></td>
+                        <td>
+                            <small class="d-block mb-2">@item.CantidadDisponible / @item.CantidadTotal</small>
+                            <div class="progress" style="height: 20px;">
+                                <div class="progress-bar @badgeClass" style="width: @(porcentaje)%;">
+                                    @(Math.Round(porcentaje))%
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <a class="btn btn-sm btn-outline-primary" asp-action="Detalle" asp-route-id="@item.Id">
+                                👁️ Ver
+                            </a>
+                            @if (esAdmin)
+                            {
+                                <a class="btn btn-sm btn-outline-secondary" asp-action="Editar" asp-route-id="@item.Id">
+                                    ✏️ Editar
+                                </a>
+                                <a class="btn btn-sm btn-outline-danger" asp-action="Eliminar" asp-route-id="@item.Id">
+                                    🗑️ Eliminar
+                                </a>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ESTADÍSTICAS -->
+    <div class="row mt-5">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h3 class="card-title text-primary">@herramientas.Count</h3>
+                    <p class="card-text">📦 Total de Herramientas</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h3 class="card-title text-success">@herramientas.Sum(h => h.CantidadDisponible)</h3>
+                    <p class="card-text">✅ Disponibles</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h3 class="card-title text-warning">@herramientas.Sum(h => h.CantidadTotal - h.CantidadDisponible)</h3>
+                    <p class="card-text">📦 En Préstamo</p>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="alert alert-info alert-lg text-center p-5" role="alert">
+        <h4>📭 No hay herramientas registradas</h4>
+        <p class="mb-0">
+            @if (esAdmin)
+            {
+                <a asp-action="Crear" class="alert-link">Crear la primera herramienta</a>
+            }
+        </p>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        // Búsqueda en tabla
+        document.getElementById('searchInput').addEventListener('keyup', function() {
+            const filter = this.value.toUpperCase();
+            const table = document.getElementById('herramientasTable');
+            const rows = table?.querySelectorAll('tbody tr') || [];
+
+            rows.forEach(row => {
+                const text = row.textContent.toUpperCase();
+                row.style.display = text.includes(filter) ? '' : 'none';
+            });
+        });
+    </script>
+}

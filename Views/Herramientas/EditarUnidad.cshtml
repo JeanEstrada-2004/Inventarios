@@ -1,0 +1,35 @@
+@model Inventarios.Models.HerramientaUnidad
+@{
+    ViewData["Title"] = "Editar unidad";
+}
+
+<h1>Editar unidad</h1>
+
+<table class="table table-bordered w-auto">
+    <tr><th>Herramienta</th><td>@Model.Herramienta?.Nombre (@Model.Herramienta?.Codigo)</td></tr>
+    <tr><th>Id</th><td>@Model.Id</td></tr>
+</table>
+
+<form asp-action="EditarUnidad" method="post">
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="HerramientaId" />
+    <div class="mb-3">
+        <label asp-for="Etiqueta" class="form-label">Nombre/etiqueta</label>
+        <input asp-for="Etiqueta" class="form-control" />
+        <span asp-validation-for="Etiqueta" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Estado" class="form-label">Estado</label>
+        <select asp-for="Estado" class="form-select" asp-items="Html.GetEnumSelectList<Inventarios.Models.EstadoHerramientaUnidad>()"></select>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Observacion" class="form-label">Observación</label>
+        <textarea asp-for="Observacion" class="form-control"></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Guardar</button>
+    <a class="btn btn-secondary" asp-action="Detalle" asp-route-id="@Model.HerramientaId">Cancelar</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
